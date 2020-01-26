@@ -1,0 +1,3 @@
+[submodule "ascend_doms"]
+	path = third_party/ascend_doms
+	url = https://github.com/afwilkin/ascend_doms.git
