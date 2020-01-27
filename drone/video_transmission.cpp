@@ -85,7 +85,9 @@ video_transmission::video_transmission(const std::string worker_address){
 
 
 
-
+void video_transmission::start_transmission(){
+    std::cout<<"TODO: start transmission"<<std::endl;
+}
 
 
 

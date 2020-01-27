@@ -6,6 +6,7 @@
 #include <chrono>
 #include "config_handler.h"
 #include "video_transmission.h"
+#include <raspicam/raspicam_cv.h>
 
 //temp
 #include <chrono>

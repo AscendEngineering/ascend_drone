@@ -28,8 +28,8 @@ doms_files = Glob(doms_directory + "*.cpp")
 env=Environment(
     CPPDEFINES=[],
     CCFLAGS=['-g'],
-    LIBS=['zmq', 'pqxx' ,'pq','protobuf',opencv],
-	LIBPATH=['/opt/vc/lib/',messaging_lib],
+    LIBS=['zmq', 'pqxx' ,'pq','protobuf',opencv,'raspicam','raspicam_cv'],
+	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
     CPPPATH=['third_party/cpp-base64','/usr/local/include',messaging_lib,doms_directory],
     SCONS_CXX_STANDARD='c++14')
 
