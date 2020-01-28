@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "config_handler.h"
 #include <iostream>
+#include <djiosdk/dji_vehicle.hpp>
 
 
 
