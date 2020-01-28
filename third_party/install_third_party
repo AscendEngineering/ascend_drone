@@ -52,3 +52,9 @@ sudo make install
 sudo ldconfig
 cd ../..
 
+#onboard sdk
+sudo usermod -a -G dialout $USER
+cd Onboard-SDK-3.6.1
+
+
+
