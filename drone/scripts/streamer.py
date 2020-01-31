@@ -7,15 +7,31 @@ import np
 
 context = zmq.Context()
 footage_socket = context.socket(zmq.PUSH)
-footage_socket.connect('tcp://192.168.0.8:5555')
+footage_socket.connect('tcp://localhost:5555')
 
 #setup camera
-camera = picamera.PiCamera()
-camera.resolution = (640, 480)
-camera.framerate = 24
-time.sleep(2)
-output = np.empty((480, 640, 3), dtype=np.uint8)
+#camera = picamera.PiCamera()
+#camera.resolution = (640, 480)
+#camera.framerate = 24
+#time.sleep(2)
+#output = np.empty((480, 640, 3), dtype=np.uint8)
 
+camera = cv2.VideoCapture(0)
+
+while True:
+    try:
+        grabbed, frame = camera.read()
+        frame = cv2.resize(frame, (640, 480))
+        encoded, buffer = cv2.imencode('.jpg', frame)
+        jpg_as_text = base64.b64encode(buffer)
+        footage_socket.send(jpg_as_text)
+#        footage_socket.send_string(base64.b64encode(buffer))
+
+
+    except KeyboardInterrupt:
+        camera.release()
+        cv2.destroyAllWindows()
+        break
 
 #while True:
     #camera.capture(output, 'rgb')
