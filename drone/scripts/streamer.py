@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import base64
 import cv2
 import zmq

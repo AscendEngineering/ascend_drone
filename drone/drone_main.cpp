@@ -11,12 +11,14 @@
 //temp
 #include <chrono>
 #include <thread>
-
+#include <unistd.h>
 
 int main(){
 
     video_transmission vid("random");
     vid.start_transmission();
+    sleep(5);
+    vid.stop_transmission();
     exit(0);
 
     drone ascendDrone;

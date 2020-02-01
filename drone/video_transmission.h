@@ -23,7 +23,7 @@ private:
     video_transmission(const video_transmission&);
     std::string worker_address;
     raspicam::RaspiCam_Cv Camera; 
-
+    pid_t pid;
 };
 
 

@@ -7,6 +7,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <zmq.hpp>
+#include <spawn.h>
+#include <csignal>
 
 //for timing
 #include <chrono>
@@ -87,6 +89,13 @@ video_transmission::video_transmission(const std::string worker_address){
 
 void video_transmission::start_transmission(){
     std::cout<<"TODO: start transmission"<<std::endl;
+    char cmd[] = {"scripts/streamer.py"};
+    char *argv[] = {"sh", "-c", cmd, NULL};
+    int status;
+    extern char** environ;
+    status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
+    std::cout<<"status: " << status << std::endl;
+    std::cout<<"pid: " << pid << std::endl;
     
 }
 
@@ -96,5 +105,7 @@ void video_transmission::start_transmission(){
 void video_transmission::stop_transmission(){
     
     std::cout<<"TODO: stop transmission"<<std::endl;
+    int status = kill(pid+1,SIGTERM);
+    std::cout<<"kill status: " << status << std::endl;
 
 }
