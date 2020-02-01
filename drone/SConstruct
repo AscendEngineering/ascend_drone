@@ -17,7 +17,7 @@ messaging_files = Glob(messaging_lib + '*.cc')
 messaging_files.extend(['drone_msg.cpp'])
 
 #drone files
-drone_files = ['drone.cpp','video_transmission.cpp',messaging_files]
+drone_files = ['drone.cpp','video_transmission.cpp','dji_wrapper.h',messaging_files]
 
 #opencv
 opencv = ['opencv_core','opencv_highgui','opencv_imgcodecs']
