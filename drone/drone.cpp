@@ -83,12 +83,11 @@ void drone::test(){
     int functionTimeout = 1;
 
     // Setup OSDK.  
-    LinuxSetup linuxEnvironment(argc, argv);
+    LinuxSetup linuxEnvironment(0, {});
     Vehicle*   vehicle = linuxEnvironment.getVehicle();
     if (vehicle == NULL)
     {
         std::cout << "Vehicle not initialized, exiting.\n";
-        return -1;
     }
 
     // Obtain Control Authority
