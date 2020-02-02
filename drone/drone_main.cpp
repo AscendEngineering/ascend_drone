@@ -22,6 +22,7 @@ int main(){
     // exit(0);
 
     drone ascendDrone;
+    ascendDrone.test();
     
     
     while(true){
