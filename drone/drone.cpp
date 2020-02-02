@@ -21,12 +21,12 @@ drone::drone(): context(1),send_socket(context, ZMQ_PUSH),recv_socket(context, Z
     int functionTimeout = 1;
 
     // Setup OSDK.
-    LinuxSetup linuxEnvironment(argc, argv);
+    LinuxSetup linuxEnvironment(0,{});
     vehicle = linuxEnvironment.getVehicle();
     if (vehicle == NULL)
     {
         std::cout << "Vehicle not initialized, exiting.\n";
-        return -1;
+        return;
     }
 
     // Obtain Control Authority

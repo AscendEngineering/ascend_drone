@@ -8,7 +8,7 @@
 #include <djiosdk/dji_vehicle.hpp>
 
 // Helpers
-#include <djiosdk/dji_linux_helpers.hpp>
+#include "dji_linux_helpers.hpp"
 
 #define C_EARTH (double)6378137.0
 #define DEG2RAD 0.01745329252
