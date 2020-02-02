@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "config_handler.h"
 #include <iostream>
-#include <djiosdk/dji_vehicle.hpp>
+#include "dji_wrapper.h"
 
 
 
@@ -16,6 +16,22 @@ drone::drone(): context(1),send_socket(context, ZMQ_PUSH),recv_socket(context, Z
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
+
+    //set up dji osdk
+    int functionTimeout = 1;
+
+    // Setup OSDK.
+    LinuxSetup linuxEnvironment(argc, argv);
+    vehicle = linuxEnvironment.getVehicle();
+    if (vehicle == NULL)
+    {
+        std::cout << "Vehicle not initialized, exiting.\n";
+        return -1;
+    }
+
+    // Obtain Control Authority
+    vehicle->obtainCtrlAuthority(functionTimeout);
+
 }
 
 

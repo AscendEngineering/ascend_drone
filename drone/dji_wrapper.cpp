@@ -18,7 +18,7 @@ monitoredTakeoff(Vehicle* vehicle, int timeout)
 
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
-    // Telemetry: Verify the subscription
+    // Telemetry: Verify the subscription   
     ACK::ErrorCode subscribeStatus;
     subscribeStatus = vehicle->subscribe->verify(timeout);
     if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
