@@ -17,20 +17,19 @@ drone::drone(): context(1),send_socket(context, ZMQ_PUSH),recv_socket(context, Z
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
 
-    //set up dji osdk
-    int functionTimeout = 1;
+    // //set up dji osdk
+    // int functionTimeout = 1;
 
-    // Setup OSDK.
-    LinuxSetup linuxEnvironment(0,{});
-    vehicle = linuxEnvironment.getVehicle();
-    if (vehicle == NULL)
-    {
-        std::cout << "Vehicle not initialized, exiting.\n";
+    // // Setup OSDK.
+    // LinuxSetup linuxEnvironment(0,{});
+    // vehicle = linuxEnvironment.getVehicle();
+    // if (vehicle == NULL)
+    // {
+    //     std::cout << "Vehicle not initialized.\n";
+    // }
 
-    }
-
-    // Obtain Control Authority
-    vehicle->obtainCtrlAuthority(functionTimeout);
+    // // Obtain Control Authority
+    // vehicle->obtainCtrlAuthority(functionTimeout);
 
 }
 
@@ -80,7 +79,21 @@ std::vector<std::string> drone::collect_messages(){
 
 
 void drone::test(){
-    monitoredTakeoff(vehicle,5);
+    // Initialize variables
+    int functionTimeout = 1;
+
+    // Setup OSDK.  
+    LinuxSetup linuxEnvironment(argc, argv);
+    Vehicle*   vehicle = linuxEnvironment.getVehicle();
+    if (vehicle == NULL)
+    {
+        std::cout << "Vehicle not initialized, exiting.\n";
+        return -1;
+    }
+
+    // Obtain Control Authority
+    vehicle->obtainCtrlAuthority(functionTimeout);
+    monitoredTakeoff(vehicle);
 }
 
 

@@ -26,7 +26,7 @@ class drone{
     private:
         //vars
         std::string drone_name;
-        Vehicle* vehicle;
+        //Vehicle* vehicle;
 
         //coms
         zmq::context_t context;
