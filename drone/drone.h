@@ -20,6 +20,7 @@ class drone{
         drone();
         bool send_to_atc(std::string msg);
         std::vector<std::string> collect_messages();
+        void test();
 
 
     private:

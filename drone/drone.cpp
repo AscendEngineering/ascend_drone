@@ -26,7 +26,7 @@ drone::drone(): context(1),send_socket(context, ZMQ_PUSH),recv_socket(context, Z
     if (vehicle == NULL)
     {
         std::cout << "Vehicle not initialized, exiting.\n";
-        return;
+
     }
 
     // Obtain Control Authority
@@ -76,6 +76,11 @@ std::vector<std::string> drone::collect_messages(){
             return messages;
         }
     }
+}
+
+
+void drone::test(){
+    vehicle->control.flightCtrl(CtrlData(VerticalLogic::VERTICAL_THRUST,0,0,0,0));
 }
 
 

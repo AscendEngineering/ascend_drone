@@ -8,3 +8,4 @@ drone/drone
 *~
 third_party/Onboard-SDK-3.6.1/
 *.swp
+config.txt

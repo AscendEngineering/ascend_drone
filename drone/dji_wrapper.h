@@ -8,7 +8,7 @@
 #include <djiosdk/dji_vehicle.hpp>
 
 // Helpers
-#include "dji_linux_helpers.hpp"
+#include <dji_linux_helpers.hpp>
 
 #define C_EARTH (double)6378137.0
 #define DEG2RAD 0.01745329252
@@ -26,7 +26,7 @@ bool monitoredTakeoff(DJI::OSDK::Vehicle* vehiclePtr, int timeout = 1);
 
 // Examples of commonly used Flight Mode APIs
 
-/*! Position Control. Allows you to set an offset from your current
+/*! Position Control. Allows you to set an offset from your current     
     location. The aircraft will move to that position and stay there.
     Typical use would be as a building block in an outer loop that does not
     require many fast changes, perhaps a few-waypoint trajectory. For smoother
