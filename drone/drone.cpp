@@ -80,8 +80,7 @@ std::vector<std::string> drone::collect_messages(){
 
 
 void drone::test(){
-    Control::CtrlData command(0xCF|Control::VerticalLogic::VERTICAL_THRUST,1,1,1,1);
-    vehicle->control->flightCtrl(command);
+    monitoredTakeoff(vehicle);
 }
 
 
