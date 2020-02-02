@@ -11,6 +11,9 @@ This file has all the operations that the drone can perform
 #include <zmq.hpp>
 #include <djiosdk/dji_vehicle.hpp>
 
+using namespace DJI::OSDK;
+using namespace DJI::OSDK::Telemetry;
+
 class drone{
 
     public:
