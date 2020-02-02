@@ -6,7 +6,7 @@
 #include <iostream>
 #include "dji_wrapper.h"
 
-
+using namespace DJI::OSDK;
 
 drone::drone(): context(1),send_socket(context, ZMQ_PUSH),recv_socket(context, ZMQ_PULL){
 
