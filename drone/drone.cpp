@@ -80,14 +80,7 @@ std::vector<std::string> drone::collect_messages(){
 
 
 void drone::test(){
-    DJI::OSDK::Control::CtrlData command;
-    command.flag &= 0xCF;
-    command.flag |= VerticalLogic::VERTICAL_THRUST;
-    command.x=1;
-    command.y=1;
-    command.z=1;
-    command.yaw=0;
-    vehicle->control->flightCtrl(CtrlData(command));
+    monitoredTakeoff(vehicle,5);
 }
 
 
