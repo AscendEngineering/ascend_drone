@@ -18,11 +18,11 @@ messaging_files.extend(['drone_msg.cpp'])
 
 #DJI OSDK
 osdk_lib='third_party/Onboard-SDK-3.6.1/build/libs'
-osdk_helpers_path='third_party/Onboard-SDK-3.6.1/linux_osdk_helpers/'
-osdk_helpers=[dji_linux_environment.cpp','/dji_linux_helpers.cpp']
+osdk_helpers_path='third_party/Onboard-SDK-3.6.1/linux_osdk_helpers'
+osdk_helpers=[osdk_helpers_path+'/dji_linux_environment.cpp',osdk_helpers_path+'/dji_linux_helpers.cpp']
 
 #drone files
-drone_files = ['drone.cpp','video_transmission.cpp','dji_wrapper.h',messaging_files,osdk_helpers]
+drone_files = ['drone.cpp','video_transmission.cpp','dji_wrapper.cpp',messaging_files,osdk_helpers]
 
 #opencv
 opencv = ['opencv_core','opencv_highgui','opencv_imgcodecs']
