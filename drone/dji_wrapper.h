@@ -4,7 +4,7 @@
 #include <cmath>
 
 // DJI OSDK includes
-#include "dji_status.hpp"
+#include <dji_status.hpp>
 #include <dji_vehicle.hpp>
 
 // Helpers

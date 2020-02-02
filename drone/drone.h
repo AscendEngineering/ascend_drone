@@ -9,6 +9,7 @@ This file has all the operations that the drone can perform
 #include <string>
 #include <vector>
 #include <zmq.hpp>
+#include <djiosdk/dji_vehicle.hpp>
 
 class drone{
 
@@ -21,6 +22,7 @@ class drone{
     private:
         //vars
         std::string drone_name;
+        Vehicle* vehicle;
 
         //coms
         zmq::context_t context;
