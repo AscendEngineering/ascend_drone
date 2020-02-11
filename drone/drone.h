@@ -10,6 +10,7 @@ This file has all the operations that the drone can perform
 #include <vector>
 #include <zmq.hpp>
 #include <djiosdk/dji_vehicle.hpp>
+#include "dji_wrapper.h"
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
@@ -18,15 +19,44 @@ class drone{
 
     public:
         drone();
+        ~drone();
+
+        /********* messaging *********/
         bool send_to_atc(std::string msg);
         std::vector<std::string> collect_messages();
-        void test();
 
+
+        /********* flight controller *********/
+        void stop_motors(); //!!!!!DO NOT USE UNLESS DRONE IS ON GROUND!!!!!
+        void test_motors();
+        void spin_at_percentage(float percentage);
+        
+        /********* sensor data *********/
+        enum sensorData{
+            LAT,        //double
+            LNG,        //double
+            ALT,        //double
+            PITCH,      //int16_t
+            ROLL,       //int16_t
+            YAW,        //int16_t
+            THROTTLE,   //int16_t
+            VEL_X,      //double
+            VEL_Y,      //double
+            VEL_Z,      //double
+        };
+
+        template<class T>
+        T get_sensor_data(sensorData sensor);
 
     private:
+
+        //functions
+        bool drone_vehicle_init();
+
         //vars
         std::string drone_name;
-        //Vehicle* vehicle;
+        LinuxSetup linuxEnvironment;
+        Vehicle* vehicle;
 
         //coms
         zmq::context_t context;
@@ -37,5 +67,7 @@ class drone{
         //disable copy and assign
         drone(const drone&);
         drone & operator=(const drone&);
+
+        
 
 };
