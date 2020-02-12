@@ -1,6 +1,6 @@
 #pragma once
 
-#include "status.pb.h"
+#include "msgDef.pb.h"
 #include <string>
 
 namespace msg_generator {

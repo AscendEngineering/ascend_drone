@@ -10,15 +10,16 @@ messaging_def = messaging_directory+'definitions/'
 
 #create proto files
 subprocess.check_call(["mkdir","-p", messaging_directory+"libs"])
-subprocess.check_call("protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'status.proto', shell=True)
+subprocess.check_call("protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'msgDef.proto', shell=True)
 
 #messaging
 messaging_files = Glob(messaging_lib + '*.cc')
 messaging_files.extend(['drone_msg.cpp'])
 
 #DJI OSDK
-osdk_lib='third_party/Onboard-SDK-3.6.1/build/libs'
-osdk_helpers_path='third_party/Onboard-SDK-3.6.1/linux_osdk_helpers'
+osdk = 'third_party/Onboard-SDK'
+osdk_lib= osdk + '/build/libs'
+osdk_helpers_path= osdk + '/linux_osdk_helpers'
 osdk_helpers=[osdk_helpers_path+'/dji_linux_environment.cpp',osdk_helpers_path+'/dji_linux_helpers.cpp']
 
 #drone files
@@ -35,7 +36,7 @@ env=Environment(
     CCFLAGS=['-g'],
     LIBS=['zmq', 'pqxx' ,'pq','protobuf',opencv,'raspicam','raspicam_cv','djiosdk-core','pthread'],
 	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib,osdk_lib],
-    CPPPATH=['third_party/cpp-base64','/usr/local/include',messaging_lib,doms_directory,osdk_helpers_path],
+    CPPPATH=['third_party/cpp-base64','/usr/local/include','/usr/local/include/djiosdk',messaging_lib,doms_directory,osdk_helpers_path],
     SCONS_CXX_STANDARD='c++14')
 
 env.Program('drone', ['drone_main.cpp',drone_files, doms_files ])
