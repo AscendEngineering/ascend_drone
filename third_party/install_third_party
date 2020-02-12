@@ -55,14 +55,14 @@ cd ../..
 
 #onboard sdk
 sudo usermod -a -G dialout $USER
-cd Onboard-SDK-3.6.1
+cd Onboard-SDK
 mkdir build
 cd build
 cmake ..
 make all
 sudo make install
 mkdir -p ../linux_osdk_helpers
-cp ../sample/linux/common/dji_linux_* ../linux_osdk_helpers/
+cp ../sample/platform/linux/common/dji_linux_* ../linux_osdk_helpers/
 cd ../..
 
 

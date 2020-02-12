@@ -6,6 +6,6 @@ third_party/raspicam/
 third_party/zeromq-4.3.2/
 drone/drone
 *~
-third_party/Onboard-SDK-3.6.1/
+third_party/Onboard-SDK/
 *.swp
 config.txt
