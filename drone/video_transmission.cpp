@@ -4,8 +4,6 @@
 #include "ascend_zmq.h"
 #include "constants.h"
 #include <iostream>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <zmq.hpp>
 #include <spawn.h>
 #include <csignal>

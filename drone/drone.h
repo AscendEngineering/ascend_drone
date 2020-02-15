@@ -16,11 +16,17 @@ class drone{
         drone();
         bool send_to_atc(std::string msg);
         std::vector<std::string> collect_messages();
+        
+        void set_waypoints(double long_in, double lat_in, double alt_in);
+        
 
 
     private:
         //vars
         std::string drone_name;
+        std::double long_waypoint;
+        std::double lat_waypoint;
+        std::double alt_waypoint;
 
         //coms
         zmq::context_t context;

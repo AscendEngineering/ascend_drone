@@ -6,7 +6,6 @@
 #include <chrono>
 #include "config_handler.h"
 #include "video_transmission.h"
-#include <raspicam/raspicam_cv.h>
 
 //temp
 #include <chrono>
@@ -34,8 +33,17 @@ int main(){
                 std::cout<<"\t"<<msg<<std::endl;
 
                 ascend::msg recvd_msg = msg_generator::deserialize(msg);
+<<<<<<< HEAD
 
                 if(recvd_msg.has_landing_request()){
+=======
+                
+                if (recvd_msg.has_set_waypoints()){
+                    
+                }   
+                /*
+                if(recvd_msg.has_issue_landing()){
+>>>>>>> f53e6d2003b4819c9ed0b1db98a5f250ed42538b
                     //start sending video off to specified landing worker
                     video_transmission vid("random");
 
@@ -50,7 +58,7 @@ int main(){
                     //dont process any messages that might've come in during landing
                     ascendDrone.collect_messages();
                 }
-
+                */
 
 
 

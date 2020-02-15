@@ -63,3 +63,8 @@ std::vector<std::string> drone::collect_messages(){
 }
 
 
+void drone::set_waypoints(double long_in, double lat_in, double alt_in){
+    long_waypoint = long_in;
+    lat_waypoint = lat_in;
+    alt_waypoint = alt_in;
+}

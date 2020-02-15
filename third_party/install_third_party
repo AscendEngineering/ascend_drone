@@ -14,7 +14,7 @@ sudo apt-get autoremove
 
 #do what we can with apt-get
 sudo apt-get update
-sudo apt-get install -y autoconf automake libtool curl make g++ unzip
+sudo apt-get install -y autoconf automake cmake libtool curl make g++ unzip vim
 sudo apt-get install -y scons
 sudo apt-get install -y libtool-bin=2.4.6-9
 sudo apt-get install -y xmlto
@@ -24,7 +24,7 @@ cd zeromq-4.3.2
 ./autogen.sh
 ./configure
 make
-make install 
+sudo make install 
 cd ..
   
 #cppzmq
@@ -42,16 +42,6 @@ make
 sudo make install
 sudo ldconfig 
 cd ..
-
-#raspicam
-cd raspicam
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-cd ../..
 
 #onboard sdk
 sudo usermod -a -G dialout $USER
