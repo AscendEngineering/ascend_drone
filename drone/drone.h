@@ -29,7 +29,6 @@ class drone{
         /********* flight controller *********/
         void stop_motors(); //!!!!!DO NOT USE UNLESS DRONE IS ON GROUND!!!!!
         void test_motors();
-        void spin_at_percentage(float percentage);
         
         /********* sensor data *********/
         enum sensorData{
@@ -47,6 +46,7 @@ class drone{
 
         template<class T>
         T get_sensor_data(sensorData sensor);
+        int16_t getMotorSpeed(int motor_num);
 
     private:
 

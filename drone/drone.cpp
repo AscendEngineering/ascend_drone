@@ -92,26 +92,14 @@ void drone::test_motors(){
     vehicle->control->armMotors(5);
     
     //sleep
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-
-    std::cout<<"Stoping the motor"<< std::endl;
-    vehicle->control->disArmMotors(5);
-
-}
-
-void drone::spin_at_percentage(float percentage){
-
-    //vehicle->control->armMotors(5);
-
-    std::cout << "Motors: " << percentage << "%" << std::endl;
-    Control::CtrlData newCmd(
-        DJI::OSDK::Control::VerticalLogic::VERTICAL_THRUST,0,0,percentage,0);
-
-    vehicle->control->flightCtrl(newCmd);
-
-    //sleep
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
+    //testing done here
+    moveByPositionOffset(vehicle, 0.0, 0.0, 5, 0);
+
+
+    //and ending
+    std::cout<<"Stoping the motor"<< std::endl;
     stop_motors();
 
 }
@@ -165,7 +153,6 @@ double drone::get_sensor_data(sensorData sensor){
             break;
         }
         case(ALT):{
-            std::cout << "Actual: " << drone_data->getValue<TOPIC_ALTITUDE_FUSIONED>() << std::endl;
             retval = (double) drone_data->getValue<TOPIC_ALTITUDE_FUSIONED>();
             break;
         }
@@ -189,6 +176,10 @@ double drone::get_sensor_data(sensorData sensor){
     return retval; 
 }
 
+int16_t drone::getMotorSpeed(int motor_num){
+    return vehicle->subscribe->getValue<TOPIC_ESC_DATA>().esc[motor_num].speed;
+}
+
 
 bool drone::drone_vehicle_init(){
     
@@ -202,8 +193,8 @@ bool drone::drone_vehicle_init(){
         return false;
     }
 
-    // Obtain Control Authority
-    vehicle->obtainCtrlAuthority(functionTimeout);
+    // // Obtain Control Authority
+    // vehicle->obtainCtrlAuthority(functionTimeout);
 
     //subscribe to sensor data
     bool succ = subscribeToData(vehicle);

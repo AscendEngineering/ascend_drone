@@ -16,6 +16,7 @@ using namespace DJI::OSDK::Telemetry;
 bool
 monitoredTakeoff(Vehicle* vehicle, int timeout)
 {
+
   //@todo: remove this once the getErrorCode function signature changes
   char func[50];
   int  pkgIndex;
@@ -367,6 +368,9 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   double yOffsetRemaining = yOffsetDesired - localOffset.y;
   double zOffsetRemaining = zOffsetDesired - (-localOffset.z);
 
+  std::cout<< "Z offset Desired: "<< zOffsetDesired << std::endl;
+  std::cout<< "Z offset remaining: "<< zOffsetRemaining << std::endl;
+
   // Conversions
   double yawDesiredRad     = DEG2RAD * yawDesired;
   double yawThresholdInRad = DEG2RAD * yawThresholdInDeg;
@@ -411,6 +415,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
    *  from the current position - until we get within a threshold of the goal.
    *  From that point on, we send the remaining distance as the setpoint.
    */
+
   if (xOffsetDesired > 0)
     xCmd = (xOffsetDesired < speedFactor) ? xOffsetDesired : speedFactor;
   else if (xOffsetDesired < 0)
@@ -439,6 +444,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   //! Main closed-loop receding setpoint position control
   while (elapsedTimeInMs < timeoutInMilSec)
   {
+    std::cout << "sending command x:"<<xCmd << " y:"<<yCmd << " z:"<<zCmd<<std::endl;
     vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
 
@@ -951,7 +957,7 @@ subscribeToData(Vehicle* vehicle, int responseTimeout)
   // Package 2: Subscribe to RC Channel and Velocity at freq 50 Hz
   pkgIndex                  = 2;
   freq                      = 50;
-  TopicName topicList50Hz[] = { TOPIC_RC, TOPIC_VELOCITY };
+  TopicName topicList50Hz[] = { TOPIC_RC, TOPIC_VELOCITY, TOPIC_ESC_DATA };
   numTopic                  = sizeof(topicList50Hz) / sizeof(topicList50Hz[0]);
   enableTimestamp           = false;
 
