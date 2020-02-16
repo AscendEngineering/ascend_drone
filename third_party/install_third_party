@@ -19,6 +19,17 @@ sudo apt-get install -y scons
 sudo apt-get install -y libtool-bin=2.4.6-9
 sudo apt-get install -y xmlto
 
+#python stuff
+pip3 install opencv-python
+sudo apt-get install -y libatlas-base-dev
+sudo apt-get install -y libjasper-dev
+sudo apt-get install -y libqtgui4
+sudo apt-get install -y python3-pyqt5
+sudo apt-get install -y libqt4-test
+sudo apt-get install -y libhdf5-dev
+sudo apt-get install -y libhdf5-serial-dev
+
+
 #zeromq
 cd zeromq-4.3.2
 ./autogen.sh
