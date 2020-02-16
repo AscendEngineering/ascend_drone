@@ -34,7 +34,11 @@ int main(){
 
                 ascend::msg recvd_msg = msg_generator::deserialize(msg);
 
+<<<<<<< HEAD
                 if(recvd_msg.has_landing_request()){
+=======
+                if(recvd_msg.has_issue_landing()){
+>>>>>>> parent of f53e6d2... Started working on the waypoints from the drone side
                     //start sending video off to specified landing worker
                     video_transmission vid("random");
 
@@ -49,7 +53,11 @@ int main(){
                     //dont process any messages that might've come in during landing
                     ascendDrone.collect_messages();
                 }
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> parent of f53e6d2... Started working on the waypoints from the drone side
 
 
 
