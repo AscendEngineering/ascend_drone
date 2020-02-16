@@ -33,12 +33,8 @@ int main(){
                 std::cout<<"\t"<<msg<<std::endl;
 
                 ascend::msg recvd_msg = msg_generator::deserialize(msg);
-                
-                if (recvd_msg.has_set_waypoints()){
-                    
-                }   
-                /*
-                if(recvd_msg.has_issue_landing()){
+
+                if(recvd_msg.has_landing_request()){
                     //start sending video off to specified landing worker
                     video_transmission vid("random");
 
@@ -53,7 +49,7 @@ int main(){
                     //dont process any messages that might've come in during landing
                     ascendDrone.collect_messages();
                 }
-                */
+                
 
 
 

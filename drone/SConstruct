@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 env = Environment() 
 
@@ -9,8 +10,12 @@ messaging_lib = messaging_directory+'libs/'
 messaging_def = messaging_directory+'definitions/'
 
 #create proto files
-subprocess.check_call(["mkdir","-p", messaging_directory+"libs"])
-subprocess.check_call("protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'status.proto', shell=True)
+if(os.path.isdir(messaging_directory)):
+    subprocess.check_call(["mkdir","-p", messaging_directory+"libs"])
+    subprocess.check_call("protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'msgDef.proto', shell=True)
+else:
+    print("SUBMODULES NEED TO BE PULLED, EXECUTE IN TOP DIRECTORY: \"git submodule update --init --recursive\"")
+    exit(1)
 
 #messaging
 messaging_files = Glob(messaging_lib + '*.cc')
