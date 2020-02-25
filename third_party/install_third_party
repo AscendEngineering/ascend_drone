@@ -29,6 +29,13 @@ sudo apt-get install -y libqt4-test
 sudo apt-get install -y libhdf5-dev
 sudo apt-get install -y libhdf5-serial-dev
  
+#tunneling for mobile connection
+mkdir -p remotit
+cd remoteit
+curl -LkO https://raw.githubusercontent.com/remoteit/installer/master/scripts/auto-install.sh
+chmod +x ./auto-install.sh
+sudo ./auto-install.sh
+cd ..
 
 #zeromq
 cd zeromq-4.3.2
@@ -63,6 +70,7 @@ cmake ..
 make all
 sudo make install
 cd ../..
+
 
 
 
