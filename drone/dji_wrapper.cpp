@@ -130,67 +130,67 @@ monitoredTakeoff(Vehicle* vehicle, int timeout)
   int stillOnGround = 0;
   timeoutCycles     = 110;
 
-  if (!vehicle->isM100() && !vehicle->isLegacyM600())
-  {
-    while (vehicle->subscribe->getValue<TOPIC_STATUS_FLIGHT>() !=
-             VehicleStatus::FlightStatus::IN_AIR &&
-           (vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>() !=
-              VehicleStatus::DisplayMode::MODE_ASSISTED_TAKEOFF ||
-            vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>() !=
-              VehicleStatus::DisplayMode::MODE_AUTO_TAKEOFF) &&
-           stillOnGround < timeoutCycles)
-    {
-      stillOnGround++;
-      usleep(100000);
-    }
+  // if (!vehicle->isM100() && !vehicle->isLegacyM600())
+  // {
+  //   while (vehicle->subscribe->getValue<TOPIC_STATUS_FLIGHT>() !=
+  //            VehicleStatus::FlightStatus::IN_AIR &&
+  //          (vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>() !=
+  //             VehicleStatus::DisplayMode::MODE_ASSISTED_TAKEOFF ||
+  //           vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>() !=
+  //             VehicleStatus::DisplayMode::MODE_AUTO_TAKEOFF) &&
+  //          stillOnGround < timeoutCycles)
+  //   {
+  //     stillOnGround++;
+  //     usleep(100000);
+  //   }
 
-    if (stillOnGround == timeoutCycles)
-    {
-      std::cout << "Takeoff failed. Aircraft is still on the ground, but the "
-                   "motors are spinning."
-                << std::endl;
-      // Cleanup
-      if (!vehicle->isM100() && !vehicle->isLegacyM600())
-      {
-        vehicle->subscribe->removePackage(0, timeout);
-      }
-      return false;
-    }
-    else
-    {
-      std::cout << "Ascending...\n";
-    }
-  }
-  else if (vehicle->isLegacyM600())
-  {
-    while ((vehicle->broadcast->getStatus().flight <
-            DJI::OSDK::VehicleStatus::FlightStatus::IN_AIR) &&
-           stillOnGround < timeoutCycles)
-    {
-      stillOnGround++;
-      usleep(100000);
-    }
+  //   if (stillOnGround == timeoutCycles)
+  //   {
+  //     std::cout << "Takeoff failed. Aircraft is still on the ground, but the "
+  //                  "motors are spinning."
+  //               << std::endl;
+  //     // Cleanup
+  //     if (!vehicle->isM100() && !vehicle->isLegacyM600())
+  //     {
+  //       vehicle->subscribe->removePackage(0, timeout);
+  //     }
+  //     return false;
+  //   }
+  //   else
+  //   {
+  //     std::cout << "Ascending...\n";
+  //   }
+  // }
+  // else if (vehicle->isLegacyM600())
+  // {
+  //   while ((vehicle->broadcast->getStatus().flight <
+  //           DJI::OSDK::VehicleStatus::FlightStatus::IN_AIR) &&
+  //          stillOnGround < timeoutCycles)
+  //   {
+  //     stillOnGround++;
+  //     usleep(100000);
+  //   }
 
-    if (stillOnGround < timeoutCycles)
-    {
-      std::cout << "Aircraft in air!" << std::endl;
-    }
-  }
-  else // M100
-  {
-    while ((vehicle->broadcast->getStatus().flight !=
-            DJI::OSDK::VehicleStatus::M100FlightStatus::IN_AIR_STANDBY) &&
-           stillOnGround < timeoutCycles)
-    {
-      stillOnGround++;
-      usleep(100000);
-    }
+  //   if (stillOnGround < timeoutCycles)
+  //   {
+  //     std::cout << "Aircraft in air!" << std::endl;
+  //   }
+  // }
+  // else // M100
+  // {
+  //   while ((vehicle->broadcast->getStatus().flight !=
+  //           DJI::OSDK::VehicleStatus::M100FlightStatus::IN_AIR_STANDBY) &&
+  //          stillOnGround < timeoutCycles)
+  //   {
+  //     stillOnGround++;
+  //     usleep(100000);
+  //   }
 
-    if (stillOnGround < timeoutCycles)
-    {
-      std::cout << "Aircraft in air!" << std::endl;
-    }
-  }
+  //   if (stillOnGround < timeoutCycles)
+  //   {
+  //     std::cout << "Aircraft in air!" << std::endl;
+  //   }
+  // }
 
   // Final check: Finished takeoff
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
@@ -444,7 +444,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   //! Main closed-loop receding setpoint position control
   while (elapsedTimeInMs < timeoutInMilSec)
   {
-    std::cout << "sending command x:"<<xCmd << " y:"<<yCmd << " z:"<<zCmd<<std::endl;
+    std::cout << "sending command x:"<<xCmd << " y:"<<yCmd << " z:"<<zCmd<< "yaw:" <<yawDesiredRad / DEG2RAD<<std::endl;
     vehicle->control->positionAndYawCtrl(xCmd, yCmd, zCmd,
                                          yawDesiredRad / DEG2RAD);
 

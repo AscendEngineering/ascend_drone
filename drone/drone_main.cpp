@@ -24,7 +24,7 @@ int main(){
 
     drone ascendDrone;
     //ascendDrone.test_motors();
-    ascendDrone.lift(0.25);
+    ascendDrone.test_motors();
 
     // //grabbing sensor data
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));

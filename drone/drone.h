@@ -71,3 +71,7 @@ class drone{
         
 
 };
+
+
+template<> int16_t drone::get_sensor_data(sensorData sensor);
+template<> double drone::get_sensor_data(sensorData sensor);

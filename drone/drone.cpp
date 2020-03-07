@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "config_handler.h"
 #include <iostream>
+#include <curses.h>
 
 //temp
 #include <thread> 
@@ -92,15 +93,64 @@ void drone::test_motors(){
     vehicle->control->armMotors(5);
     
     //sleep
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+    std::cout<<"Taking off" << std::endl;
 
     //testing done here
-    moveByPositionOffset(vehicle, 0.0, 0.0, 5, 0);
+    monitoredTakeoff(vehicle,30);
 
+    //ACK::ErrorCode takeoffStatus = vehicle->control->takeoff(30);
+
+    // initscr();
+    // cbreak();
+    // noecho();
+    // keypad(stdscr, TRUE);
+
+    // while(true){
+    //     // if(std::cin.peek()){
+    //     //     char movement;
+    //     //     std::cin.get(movement);
+    //     //     std::cout << "Movement command: " << movement << std::endl;
+    //     // }
+
+        
+    
+    //     // control
+    //     char ch = getch();
+    //     if (ch != ERR){
+    //         if(ch == 'w'){
+    //             addch('u');addch('p');addch('\n');
+    //             vehicle->control->positionAndYawCtrl(0, 0, 0.1,0);
+    //         }
+    //         else if(ch == 's'){
+    //             addch('d');addch('o');addch('w');addch('n');addch('\n');
+    //             vehicle->control->positionAndYawCtrl(0, 0, -0.1,0);
+    //         }
+    //         else if(ch == 'x'){
+    //             endwin();
+    //             break;
+    //         }
+    //     }
+    // }
+
+    // std::cout << "Motor speed 0: " << getMotorSpeed(0) << std::endl;
+    // std::cout << "Motor speed 1: " << getMotorSpeed(1) << std::endl;
+    // std::cout << "Motor speed 2: " << getMotorSpeed(2) << std::endl;
+    // std::cout << "Motor speed 3: " << getMotorSpeed(3) << std::endl;
+    // std::cout << "Alt: " << get_sensor_data<double>(ALT) << std::endl;
+
+
+    //moveByPositionOffset(vehicle, 0.0, 0.0, 0.5, 0);
+
+    //sleep
+    std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+
+    //std::cout << "takeoff status: " << takeoffStatus.data << std::endl;
 
     //and ending
     std::cout<<"Stoping the motor"<< std::endl;
-    stop_motors();
+    //stop_motors();
 
 }
 
@@ -194,13 +244,13 @@ bool drone::drone_vehicle_init(){
     }
 
     // // Obtain Control Authority
-    // vehicle->obtainCtrlAuthority(functionTimeout);
+    vehicle->obtainCtrlAuthority(functionTimeout);
 
-    //subscribe to sensor data
-    bool succ = subscribeToData(vehicle);
-    if(!succ){
-        return false;
-    }
+    // //subscribe to sensor data
+    // bool succ = subscribeToData(vehicle);
+    // if(!succ){
+    //     return false;
+    // }
 
     return true;
 }
