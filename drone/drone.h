@@ -9,11 +9,7 @@ This file has all the operations that the drone can perform
 #include <string>
 #include <vector>
 #include <zmq.hpp>
-#include <djiosdk/dji_vehicle.hpp>
-#include "dji_wrapper.h"
 
-using namespace DJI::OSDK;
-using namespace DJI::OSDK::Telemetry;
 
 class drone{
 
@@ -55,8 +51,6 @@ class drone{
 
         //vars
         std::string drone_name;
-        LinuxSetup linuxEnvironment;
-        Vehicle* vehicle;
 
         //coms
         zmq::context_t context;
