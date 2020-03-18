@@ -9,6 +9,11 @@ This file has all the operations that the drone can perform
 #include <string>
 #include <vector>
 #include <zmq.hpp>
+#include <mavsdk/mavsdk.h>
+#include <mavsdk/plugins/action/action.h>
+#include <mavsdk/plugins/telemetry/telemetry.h>
+#include <memory>
+
 
 
 class drone{
@@ -21,36 +26,27 @@ class drone{
         bool send_to_atc(std::string msg);
         std::vector<std::string> collect_messages();
 
-
         /********* flight controller *********/
-        void stop_motors(); //!!!!!DO NOT USE UNLESS DRONE IS ON GROUND!!!!!
-        void test_motors();
         
-        /********* sensor data *********/
-        enum sensorData{
-            LAT,        //double
-            LNG,        //double
-            ALT,        //double
-            PITCH,      //int16_t
-            ROLL,       //int16_t
-            YAW,        //int16_t
-            THROTTLE,   //int16_t
-            VEL_X,      //double
-            VEL_Y,      //double
-            VEL_Z,      //double
-        };
-
-        template<class T>
-        T get_sensor_data(sensorData sensor);
-        int16_t getMotorSpeed(int motor_num);
 
     private:
 
         //functions
-        bool drone_vehicle_init();
+        bool connect_px4();
+        bool arm();
+        bool takeoff(int altitude = 3);
+        bool land();  /* DOES NOT BLOCK */
+        bool kill();
+        void manual();
+        void test_motor(int motor = -1);
+        
 
         //vars
         std::string drone_name;
+        mavsdk::Mavsdk px4;
+        mavsdk::System* system;
+        std::shared_ptr<mavsdk::Telemetry> telemetry;
+        std::shared_ptr<mavsdk::Action> action;
 
         //coms
         zmq::context_t context;
@@ -65,7 +61,3 @@ class drone{
         
 
 };
-
-
-template<> int16_t drone::get_sensor_data(sensorData sensor);
-template<> double drone::get_sensor_data(sensorData sensor);
