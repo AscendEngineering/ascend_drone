@@ -6,7 +6,6 @@
 #include <chrono>
 #include "config_handler.h"
 #include "video_transmission.h"
-#include <raspicam/raspicam_cv.h>
 
 //temp
 #include <chrono>
@@ -54,18 +53,13 @@ int main(){
     
     
     // while(true){
-
-
-
     //     //receive messages
     //     std::vector<std::string> messages = ascendDrone.collect_messages();
     //     if(messages.size() > 0){
     //         std::cout<<"Messages"<<std::endl;
     //         for(auto msg: messages){
     //             std::cout<<"\t"<<msg<<std::endl;
-
     //             ascend::msg recvd_msg = msg_generator::deserialize(msg);
-
     //             if(recvd_msg.has_issue_landing()){
     //                 //start sending video off to specified landing worker
     //                 video_transmission vid("random");

@@ -2,10 +2,6 @@
 
 #include <string>
 
-#include <raspicam/raspicam_cv.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 class video_transmission{
     
 
@@ -22,7 +18,6 @@ private:
     video_transmission& operator=(const video_transmission&);
     video_transmission(const video_transmission&);
     std::string worker_address;
-    raspicam::RaspiCam_Cv Camera; 
     pid_t pid;
 };
 
