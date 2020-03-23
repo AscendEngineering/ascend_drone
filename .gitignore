@@ -3,9 +3,10 @@
 third_party/cppzmq-4.5.0/
 third_party/protobuf-3.11.2/
 third_party/raspicam/
+third_party/MAVSDK
 third_party/zeromq-4.3.2/
-third_party/Onboard-SDK/
 drone/drone
 *~
 drone/config.txt
 *.swp
+config.txt
