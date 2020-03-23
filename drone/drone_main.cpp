@@ -22,19 +22,35 @@ int main(){
     // vid.stop_transmission();
     // exit(0);
 
+
     drone ascendDrone;
-    //ascendDrone.test_motors();
+    ascendDrone.manual();
+    exit(0);
 
-    // //grabbing sensor data
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    // int16_t roll = ascendDrone.get_sensor_data<int16_t>(drone::ROLL);
-    // std::cout <<"roll: " << roll << std::endl;
+    //arm
+    std::cout << "Arming..." << std::endl;
+    bool armed = ascendDrone.arm();
+    if(armed){std::cout << "...Armed" << std::endl;}
+    else{std::cerr << "ARMING FAILURE" << std::endl;exit(1);}
 
-    // double alt = ascendDrone.get_sensor_data<double>(drone::ALT);
-    // std::cout <<"alt: " << alt << std::endl;
+    //takeoff
+    std::cout << "Taking off..." << std::endl;
+    bool tookoff = ascendDrone.takeoff();
+    if(tookoff){std::cout << "...Took off" << std::endl;}
+    else{std::cerr << "TAFEOFF FAILURE" << std::endl;exit(1);}
 
+    std::this_thread::sleep_for (std::chrono::seconds(10));
 
-    //ascendDrone.spin_at_percentage(2.0);
+    //manual mode
+    std::cout << "Entering Manual Mode..." << std::endl;
+    ascendDrone.manual();
+    std::cout << "...Exited Manual Mode" << std::endl;
+
+    //land
+    std::cout << "Landing initiated..." << std::endl;
+    bool landing = ascendDrone.land();
+    if(landing){std::cout << "...Landing" << std::endl;}
+    else{std::cerr << "LANDING FAILURE" << std::endl;exit(1);}
     
     
     // while(true){

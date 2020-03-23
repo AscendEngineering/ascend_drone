@@ -27,12 +27,6 @@ class drone{
         std::vector<std::string> collect_messages();
 
         /********* flight controller *********/
-        
-
-    private:
-
-        //functions
-        bool connect_px4();
         bool arm();
         bool takeoff(int altitude = 3);
         bool land();  /* DOES NOT BLOCK */
@@ -40,6 +34,11 @@ class drone{
         void manual();
         void test_motor(int motor = -1);
         
+
+    private:
+
+        //functions
+        bool connect_px4();
 
         //vars
         std::string drone_name;

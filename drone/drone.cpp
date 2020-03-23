@@ -3,6 +3,7 @@
 #include "ascend_zmq.h"
 #include "constants.h"
 #include "config_handler.h"
+#include "drone_msg.h"
 #include "manual_control.h"
 
 #include <mavsdk/mavsdk.h>
@@ -20,7 +21,7 @@ drone::drone(): context(1),
                 {
 
     //assign config vars
-    drone_name = config_handler::instance()["name"];
+    drone_name = config_handler::instance()["drone_name"];
 
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
@@ -28,8 +29,6 @@ drone::drone(): context(1),
 
     //set up drone vehicle
     connect_px4();
-
-
 }
 
 drone::~drone(){
@@ -107,17 +106,16 @@ bool drone::connect_px4(){
 bool drone::arm(){
 
     //check our health
-    std::cout << "Checking Drone Health..." << std::endl;
     while (telemetry->health_all_ok() != true) {
         Telemetry::Health health = telemetry->health();
-        std::cout << health << std::endl;
+        std::cerr << "Drone is not healthy: " << health << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << "...Drone is healthy" << std::endl;
 
     //arm
-    std::cout << "Arming..." << std::endl;
     const Action::Result arm_result = action->arm();
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     if(arm_result != Action::Result::SUCCESS){
         return false;
