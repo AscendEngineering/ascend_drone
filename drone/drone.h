@@ -12,6 +12,7 @@ This file has all the operations that the drone can perform
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include "waypoints.h"
 #include <memory>
 
 
@@ -32,6 +33,7 @@ class drone{
         bool land();  /* DOES NOT BLOCK */
         bool kill();
         void manual();
+        void waypoint();
         void test_motor(int motor = -1);
         
 
@@ -46,6 +48,7 @@ class drone{
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
+        std::shared_ptr<waypoints> waypoint_mission;
 
         //coms
         zmq::context_t context;

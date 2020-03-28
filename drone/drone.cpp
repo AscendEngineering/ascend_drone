@@ -140,7 +140,7 @@ bool drone::takeoff(int altitude /* = 3 */){
         return false;
     }
 
-    return true;
+    return true;    
 }
 
 bool drone::land(){
@@ -164,6 +164,10 @@ bool drone::kill(){
 
 void drone::manual(){
     manual_control drone_control(system);
+}
+
+void drone::waypoint(){
+    waypoint_mission = std::make_shared<waypoints>(*system);
 }
 
 
