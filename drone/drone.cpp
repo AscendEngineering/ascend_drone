@@ -12,6 +12,7 @@
 #include <thread> 
 #include <chrono>  
 #include <memory>
+#include <future>
 
 using namespace mavsdk;
 
@@ -82,27 +83,6 @@ std::vector<std::string> drone::collect_messages(){
     }
 }
 
-
-bool drone::connect_px4(){
-    
-
-    ConnectionResult conn_result = px4.add_serial_connection("/dev/ttyS0");
-
-    std::cout << "Connecting";
-    while (!px4.is_connected()) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        std::cout<<".";
-    }
-
-    //assigning the system
-    system = &px4.system();
-    telemetry = std::make_shared<Telemetry>(*system);
-    action = std::make_shared<Action>(*system);
-
-    return true;
-}
-
-
 bool drone::arm(){
 
     //check our health
@@ -166,8 +146,137 @@ void drone::manual(){
     manual_control drone_control(system);
 }
 
-void drone::waypoint(){
-    waypoint_mission = std::make_shared<waypoints>(*system);
+bool drone::start_mission(const waypoints& mission){
+
+    //form waypoint if null
+    if(m_mission == nullptr){
+        m_mission = std::make_shared<Mission>(*system);
+    }
+    
+    //upload the given mission
+    bool succ_upload = upload_waypoints(mission.get_waypoints());
+
+    if(!succ_upload){
+        return false;
+    }
+
+    return mission_control(START);
+}
+
+bool drone::pause_mission(){
+    return mission_control(PAUSE);
+}
+
+bool drone::cancel_mission(){
+    return mission_control(CANCEL);
+}
+
+bool drone::mission_finished(){
+    return m_mission->mission_finished();
+}
+
+int drone::current_mission_item(){
+    return m_mission->current_mission_item();
+}
+
+int drone::total_mission_items(){
+    return m_mission->total_mission_items();
+}
+
+void drone::wait_for_mission_completion(){
+
+    if(m_mission == nullptr){
+        return;
+    }
+
+    //setup variables
+    bool finished = false;
+    auto prom = std::make_shared<std::promise<float>>();
+    auto future_result = prom->get_future();
+
+    //subscribe to the updates 
+    m_mission->subscribe_progress([prom](int current, int total) { prom->set_value((float)(current/total));});
+
+    //wait until reached last waypoint
+    while(!finished){
+        float result = future_result.get();
+        if(result == 1.0){
+            finished = true;
+        }
+    }
+}
+
+bool drone::connect_px4(){
+
+    ConnectionResult conn_result = px4.add_serial_connection("/dev/ttyS0");
+
+    std::cout << "Connecting";
+    while (!px4.is_connected()) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout<<".";
+    }
+
+    //assigning the system
+    system = &px4.system();
+    telemetry = std::make_shared<Telemetry>(*system);
+    action = std::make_shared<Action>(*system);
+
+    return true;
+}
+
+bool drone::mission_control(control_cmd cmd){
+
+    if(m_mission == nullptr){
+        return false;
+    }
+    
+    auto prom = std::make_shared<std::promise<Mission::Result>>();
+    auto future_result = prom->get_future();
+
+    switch(cmd){
+        case START:{
+            m_mission->start_mission_async([prom](Mission::Result result) { prom->set_value(result);});
+            break;
+        }
+        case PAUSE:{
+            m_mission->pause_mission_async([prom](Mission::Result result) {prom->set_value(result);});
+            break;
+        }
+        case CANCEL:{
+            m_mission->clear_mission_async([prom](Mission::Result result) {prom->set_value(result);});
+            break;
+        }
+        default:{
+            std::cerr << "Invalid command" << std::endl;
+            return false;
+        }
+
+    }
+    
+    const Mission::Result result = future_result.get();
+    return (result==Mission::Result::SUCCESS);
+}
+
+bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionItem>>& waypoints){
+
+    if(m_mission == nullptr){
+        return false;
+    }
+
+    //setup promise/future
+    auto prom = std::make_shared<std::promise<Mission::Result>>();
+    auto future_result = prom->get_future();
+
+    //for each waypoint
+    m_mission->upload_mission_async(waypoints, [prom](Mission::Result result) { prom->set_value(result); });
+    const Mission::Result result = future_result.get();
+    
+    if(result==Mission::Result::SUCCESS){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 

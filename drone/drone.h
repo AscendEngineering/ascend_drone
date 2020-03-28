@@ -33,22 +33,41 @@ class drone{
         bool land();  /* DOES NOT BLOCK */
         bool kill();
         void manual();
-        void waypoint();
         void test_motor(int motor = -1);
+
+        /********* Waypoint Methods *********/
+        bool start_mission(const waypoints& mission);
+        bool pause_mission();
+        bool cancel_mission();
+
+        bool mission_finished();
+        int current_mission_item();
+        int total_mission_items();
+
+        void wait_for_mission_completion();
         
 
     private:
 
-        //functions
+        //px4
         bool connect_px4();
 
+        //waypoints
+        enum control_cmd{
+            START,
+            PAUSE,
+            CANCEL
+        };
+        bool mission_control(control_cmd cmd);
+        bool upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionItem>>& waypoints);
+        std::shared_ptr<Mission> m_mission;
+        
         //vars
         std::string drone_name;
         mavsdk::Mavsdk px4;
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
-        std::shared_ptr<waypoints> waypoint_mission;
 
         //coms
         zmq::context_t context;

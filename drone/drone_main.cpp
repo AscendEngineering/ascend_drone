@@ -10,6 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+#include "waypoints.h"
 
 int main(int argc, char** argv){
 
@@ -48,15 +49,21 @@ int main(int argc, char** argv){
 
     //select the mode
     if(waypoint_mode){
+
         //waypoint mode
         std::cout << "Entering Waypoint Mode..." << std::endl;
-        ascendDrone.waypoint();
-        ascendDrone.waypoint_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
-        ascendDrone.waypoint_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
-        bool succ_upload = ascendDrone.waypoint_mission.upload_waypoints();
+        
+        //create mission
+        waypoints new_mission;
+        new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
+        new_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
+        
+        //start mission
+        bool succ_start = ascendDrone.start_mission(new_mission);
 
-        if(succ_upload){
-            ascendDrone.waypoint_mission.start_mission();
+        //wait for completion
+        if(succ_start){
+            ascendDrone.wait_for_mission_completion();
         }
         std::cout << "...Exited Waypoint Mode" << std::endl;
 
