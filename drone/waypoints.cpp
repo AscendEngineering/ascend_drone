@@ -15,7 +15,7 @@ void waypoints::add_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionI
     m_waypoints.insert(m_waypoints.end(),waypoints.begin(),waypoints.end());
 }
 
-void waypoints::add_waypoint(float latitude, float longitude, float altitude, float speed){
+void waypoints::add_waypoint(double latitude, double longitude, double altitude, double speed){
     std::shared_ptr<mavsdk::MissionItem> temp_item = std::make_shared<mavsdk::MissionItem>();
     temp_item->set_speed(speed);
     temp_item->set_position(latitude,longitude);
@@ -33,7 +33,12 @@ bool waypoints::upload_waypoints(){
     m_mission->upload_mission_async(m_waypoints, [prom](Mission::Result result) { prom->set_value(result); });
     const Mission::Result result = future_result.get();
     
-    return (result==Mission::Result::SUCCESS);
+    if(result==Mission::Result::SUCCESS){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 

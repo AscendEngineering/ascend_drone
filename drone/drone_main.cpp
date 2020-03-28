@@ -51,7 +51,14 @@ int main(int argc, char** argv){
         //waypoint mode
         std::cout << "Entering Waypoint Mode..." << std::endl;
         ascendDrone.waypoint();
-        std::cout << "...Exited Manual Mode" << std::endl;
+        ascendDrone.waypoint_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
+        ascendDrone.waypoint_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
+        bool succ_upload = ascendDrone.waypoint_mission.upload_waypoints();
+
+        if(succ_upload){
+            ascendDrone.waypoint_mission.start_mission();
+        }
+        std::cout << "...Exited Waypoint Mode" << std::endl;
 
     }
     else{
