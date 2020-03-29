@@ -20,7 +20,6 @@ video_transmission::video_transmission(const std::string worker_address){
 }
 
 video_transmission::~video_transmission(){
-    std::cout << "Stopping transmission"<< std::endl;
     stop_transmission();
 }
 
@@ -29,29 +28,20 @@ void video_transmission::start_transmission(){
     //form command
     std::string full_cmd = "ffmpeg -f v4l2 -i /dev/video0 -preset ultrafast -vcodec libx264 -tune zerolatency -b 900k -f h264";
     full_cmd += " udp://" + worker_address + ":" + constants::video_port;
-    //full_cmd += " > /dev/null 2>&1 ";
+    full_cmd += " > /dev/null 2>&1";
 
-    //convert to proper form
+    //convert to proper command
     char cmd[full_cmd.size()+1];
-    memcpy(cmd,full_cmd.c_str(),full_cmd.size());
-    cmd[full_cmd.size()] + '\n';
-
+    memcpy(cmd,full_cmd.c_str(),full_cmd.size()+1);
+    cmd[full_cmd.size()];
     char *argv[] = {"sh", "-c", cmd, NULL};
 
     //execute
     int status;
     extern char** environ;
     status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
-
-    std::cout<<"status: " << status << std::endl;
-    std::cout<<"pid: " << pid << std::endl;
-    
 }
 
 void video_transmission::stop_transmission(){
-    
-    std::cout<<"TODO: stop transmission"<<std::endl;
     int status = kill(pid+1,SIGTERM);
-    std::cout<<"kill status: " << status << std::endl;
-
 }
