@@ -6,25 +6,32 @@
 #include <chrono>
 #include "config_handler.h"
 #include "video_transmission.h"
-
-//temp
+#include <cxxopts.hpp>
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+#include "waypoints.h"
 
-int main(){
+int main(int argc, char** argv){
 
-    // //video transmission
-    // video_transmission vid("random");
-    // vid.start_transmission();
-    // sleep(5);
-    // vid.stop_transmission();
-    // exit(0);
+    //Args
+/*---------------------------------------------------------------*/
+    cxxopts::Options options("Drone", "Runs on onboard computer to control flight controller");
+    options.add_options()
+        ("w,waypoint","Set flag to fly waypoints",cxxopts::value<bool>()->default_value("false"))
+        ("h,help", "Print usage");
+    auto result = options.parse(argc, argv);
 
+    if(result.count("help")){
+        std::cout << options.help() << std::endl;
+        exit(0);
+    }
+
+    bool waypoint_mode = result["waypoint"].as<bool>();
+
+/*---------------------------------------------------------------*/
 
     drone ascendDrone;
-    ascendDrone.manual();
-    exit(0);
 
     //arm
     std::cout << "Arming..." << std::endl;
@@ -40,16 +47,48 @@ int main(){
 
     std::this_thread::sleep_for (std::chrono::seconds(10));
 
-    //manual mode
-    std::cout << "Entering Manual Mode..." << std::endl;
-    ascendDrone.manual();
-    std::cout << "...Exited Manual Mode" << std::endl;
+    //select the mode
+    if(waypoint_mode){
+
+        //waypoint mode
+        std::cout << "Entering Waypoint Mode..." << std::endl;
+        
+        //create mission
+        waypoints new_mission;
+        new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
+        new_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
+        
+        //start mission
+        bool succ_start = ascendDrone.start_mission(new_mission);
+
+        //wait for completion
+        if(succ_start){
+            ascendDrone.wait_for_mission_completion();
+        }
+        std::cout << "...Exited Waypoint Mode" << std::endl;
+
+    }
+    else{
+        //manual mode
+        std::cout << "Entering Manual Mode..." << std::endl;
+        ascendDrone.manual();
+        std::cout << "...Exited Manual Mode" << std::endl;
+    }
 
     //land
     std::cout << "Landing initiated..." << std::endl;
-    bool landing = ascendDrone.land();
-    if(landing){std::cout << "...Landing" << std::endl;}
-    else{std::cerr << "LANDING FAILURE" << std::endl;exit(1);}
+    bool landing = false;
+    while(!landing){
+        landing = ascendDrone.land();
+        if(landing){
+            std::cout << "...Landing" << std::endl;
+        }
+        else{
+            std::cerr << "LANDING FAILURE...RETRY" << std::endl;
+            std::this_thread::sleep_for (std::chrono::seconds(5));
+        }
+    }
+    
     
     
     // while(true){

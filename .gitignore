@@ -5,6 +5,7 @@ third_party/protobuf-3.11.2/
 third_party/raspicam/
 third_party/MAVSDK
 third_party/zeromq-4.3.2/
+third_party/cxxopts-2.2.0/
 drone/drone
 *~
 drone/config.txt
