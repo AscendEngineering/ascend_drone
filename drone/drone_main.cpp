@@ -14,14 +14,6 @@
 
 int main(){
 
-    //video transmission
-    {
-        video_transmission vid("10.0.0.60");
-        std::this_thread::sleep_for (std::chrono::seconds(10));
-    }
-    exit(0);
-
-
     drone ascendDrone;
 
     //arm
