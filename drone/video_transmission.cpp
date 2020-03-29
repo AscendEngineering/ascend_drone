@@ -7,103 +7,41 @@
 #include <zmq.hpp>
 #include <spawn.h>
 #include <csignal>
+#include <unistd.h>
 
 //for timing
 #include <chrono>
 #include <ctime>
 #include <thread>
 
-
-// video_transmission::video_transmission(const std::string worker_address){
-//     this->worker_address=worker_address;
-// }
-
-// void video_transmission::start_transmission(){
-//     std::cout<<"TODO: start transmission"<<std::endl;
-	    
-//     //Camera.set(cv::CAP_PROP_EXPOSURE,0);
-//     Camera.set(cv::CAP_PROP_FPS,0);
-//     Camera.set(cv::CAP_PROP_MODE,0);
-//     if(!Camera.open()){
-//         //TODO throw error
-//         std::cerr <<"Error opening camera" << std::endl;
-//         return;
-//     }
-    
-//     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
-//     std::cout<<"Connected to camera ="<<Camera.getId() << std::endl;
-//     cv::Mat image;
-   
-//     //buffer for later
-//     std::string encoded_img;
-//     encoded_img.reserve(3686400); //rows*cols
-    
-//     const auto p1 = std::chrono::system_clock::now();
-
-// 	 unsigned int iterations = 100;
-//     for(unsigned int i=0; i< iterations; i++){
-//     //while(true){
-//         Camera.grab();
-//         Camera.retrieve ( image );
-        
-//         //std::string imgData(image.datastart,image.dataend);
-
-//         //encode and base64
-//         //cv::imencode(".jpg",image,buf);
-        
-//         //base64_encode(image.data,3686400,encoded_img);
-
-//         //send over
-//         //bool succ = comm::send_msg(send_socket,"drone1",encoded_img,"tcp://localhost:"+constants::from_drone);
-
-// 		  //cv::namedWindow( "Image", cv::WINDOW_AUTOSIZE );
-//         //cv::imshow("Image", image);
-//         //cv::waitKey(0);
-
-//     }
-//     const auto p2 = std::chrono::system_clock::now();
-//     auto framesPerSecond = ((double)(1000*iterations)/(double)std::chrono::duration_cast<std::chrono::milliseconds>(p2-p1).count());
-//     std::cout<< "Frames per second: " << 
-// 	 framesPerSecond
-// 	 <<std::endl;
-
-
-// }
-
-// void video_transmission::stop_transmission(){
-    
-//     std::cout<<"TODO: stop transmission"<<std::endl;
-
-// }
-
-
-
 video_transmission::video_transmission(const std::string worker_address){
     this->worker_address=worker_address;
+    start_transmission();
 }
 
-
+video_transmission::~video_transmission(){
+    stop_transmission();
+}
 
 void video_transmission::start_transmission(){
-    std::cout<<"TODO: start transmission"<<std::endl;
-    char cmd[] = {"scripts/streamer.py"};
+    
+    //form command
+    std::string full_cmd = "ffmpeg -f v4l2 -i /dev/video0 -preset ultrafast -vcodec libx264 -tune zerolatency -b 900k -f h264";
+    full_cmd += " udp://" + worker_address + ":" + constants::video_port;
+    full_cmd += " > /dev/null 2>&1";
+
+    //convert to proper command
+    char cmd[full_cmd.size()+1];
+    memcpy(cmd,full_cmd.c_str(),full_cmd.size()+1);
+    cmd[full_cmd.size()];
     char *argv[] = {"sh", "-c", cmd, NULL};
+
+    //execute
     int status;
     extern char** environ;
     status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
-    std::cout<<"status: " << status << std::endl;
-    std::cout<<"pid: " << pid << std::endl;
-    
 }
 
-
-
-
 void video_transmission::stop_transmission(){
-    
-    std::cout<<"TODO: stop transmission"<<std::endl;
     int status = kill(pid+1,SIGTERM);
-    std::cout<<"kill status: " << status << std::endl;
-
 }
