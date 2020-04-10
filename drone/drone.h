@@ -12,9 +12,9 @@ This file has all the operations that the drone can perform
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include "waypoints.h"
 #include <memory>
-
 
 
 class drone{

@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import socket
-UDP_IP = "10.0.0.48"
+UDP_IP = "10.0.0.60"
 UDP_PORT = 5555
 cap = cv2.VideoCapture(0)
 while(True):

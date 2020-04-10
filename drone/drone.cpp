@@ -282,7 +282,14 @@ bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionIt
 
 void drone::test_motor(int motor){
 
-    //going to have to take a passthrough command   
+    //going to have to take a passthrough command
+
+    mavlink_message_t test_message;
+
+    //spin all motors
+    if(motor == -1){
+        std::cout << "TODO" << std::endl;
+    } 
     
 
 }

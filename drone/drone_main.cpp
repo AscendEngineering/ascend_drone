@@ -19,6 +19,7 @@ int main(int argc, char** argv){
     cxxopts::Options options("Drone", "Runs on onboard computer to control flight controller");
     options.add_options()
         ("w,waypoint","Set flag to fly waypoints",cxxopts::value<bool>()->default_value("false"))
+        ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
     auto result = options.parse(argc, argv);
 
@@ -28,16 +29,25 @@ int main(int argc, char** argv){
     }
 
     bool waypoint_mode = result["waypoint"].as<bool>();
+    bool test_motors = result["test"].as<bool>();
 
 /*---------------------------------------------------------------*/
 
+
     drone ascendDrone;
+
+    //test motors
+    if(test_motors){
+        ascendDrone.test_motor();
+    }
 
     //arm
     std::cout << "Arming..." << std::endl;
     bool armed = ascendDrone.arm();
     if(armed){std::cout << "...Armed" << std::endl;}
     else{std::cerr << "ARMING FAILURE" << std::endl;exit(1);}
+
+    std::this_thread::sleep_for (std::chrono::seconds(10));
 
     //takeoff
     std::cout << "Taking off..." << std::endl;
