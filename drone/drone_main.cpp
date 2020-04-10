@@ -39,6 +39,7 @@ int main(int argc, char** argv){
     //test motors
     if(test_motors){
         ascendDrone.test_motor();
+        return 0;
     }
 
     //arm

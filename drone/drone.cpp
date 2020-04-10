@@ -20,7 +20,7 @@ drone::drone(): context(1),
                 send_socket(context, ZMQ_PUSH),
                 recv_socket(context, ZMQ_PULL)
                 {
-
+ 
     //assign config vars
     drone_name = config_handler::instance()["drone_name"];
 
@@ -282,14 +282,25 @@ bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionIt
 
 void drone::test_motor(int motor){
 
-    //going to have to take a passthrough command
-
-    mavlink_message_t test_message;
+    std::shared_ptr<mavsdk::Shell> shell = std::make_shared<Shell>(*system);
 
     //spin all motors
+    std::string motors = "";
     if(motor == -1){
-        std::cout << "TODO" << std::endl;
-    } 
-    
+        motors = "123456";
+    }
+    else{
+        motors = std::to_string(motor);
+    }
+
+    //send command
+    std::string command = "pwm test -c " + motors + " -p 1000";
+    shell->shell_command({true,5000,command.c_str()});
+
+    //wait
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    //kill motors
+    shell->shell_command({true,5000,"c"});
 
 }
