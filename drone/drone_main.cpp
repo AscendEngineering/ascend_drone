@@ -42,13 +42,16 @@ int main(int argc, char** argv){
         return 0;
     }
 
+    //video open
+    //send request to start streaming video
+
+    //receive back the address of where to stream to
+
     //arm
     std::cout << "Arming..." << std::endl;
     bool armed = ascendDrone.arm();
     if(armed){std::cout << "...Armed" << std::endl;}
     else{std::cerr << "ARMING FAILURE" << std::endl;exit(1);}
-
-    std::this_thread::sleep_for (std::chrono::seconds(10));
 
     //takeoff
     std::cout << "Taking off..." << std::endl;

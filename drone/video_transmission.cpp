@@ -24,11 +24,17 @@ video_transmission::~video_transmission(){
 }
 
 void video_transmission::start_transmission(){
-    
+
+    //generate SDP file
+
+    //send SDP file to landing assist worker address
+
+    //wait for go ahead to start streaming
+
+    //start streaming
+
     //form command
-    std::string full_cmd = "ffmpeg -f v4l2 -i /dev/video0 -preset ultrafast -vcodec libx264 -tune zerolatency -b 900k -f h264";
-    full_cmd += " udp://" + worker_address + ":" + constants::video_port;
-    full_cmd += " > /dev/null 2>&1";
+    std::string full_cmd = '';
 
     //convert to proper command
     char cmd[full_cmd.size()+1];
