@@ -16,20 +16,28 @@
 
 using namespace mavsdk;
 
+
+
+
 drone::drone(): context(1),
                 send_socket(context, ZMQ_PUSH),
                 recv_socket(context, ZMQ_PULL)
                 {
  
-    //assign config vars
-    drone_name = config_handler::instance()["drone_name"];
+    load_config_vars();
 
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
 
+    //register with ATC
+    register_with_atc();
+
     //set up drone vehicle
     connect_px4();
+
+    // //register with ATC
+    // register_with_atc();
 }
 
 drone::~drone(){
@@ -41,10 +49,6 @@ drone::~drone(){
 
 
 bool drone::send_to_atc(std::string msg){
-
-    //read atc_ip and name from config
-    std::string atc_ip = config_handler::instance()["atc_ip"] + constants::from_drone;
-
     //send
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }
@@ -81,6 +85,23 @@ std::vector<std::string> drone::collect_messages(){
             return messages;
         }
     }
+}
+
+bool drone::register_with_atc(){
+
+    //craft proto message to register
+    std::string msg = msg_generator::generate_status_change(drone_name,drone_status::AVAILABLE);
+    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+}
+
+bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
+    std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
+    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+}
+
+bool drone::unregister_with_atc(){
+
+    return true;
 }
 
 bool drone::arm(){
@@ -302,5 +323,21 @@ void drone::test_motor(int motor){
 
     //kill motors
     shell->shell_command({true,5000,"c"});
+
+}
+
+void drone::load_config_vars(){
+
+    //drone name
+    drone_name = config_handler::instance()["drone_name"];
+
+    //atc address
+    if(std::getenv("LOCAL_NETWORK") == nullptr){
+        atc_ip = config_handler::instance()["atc_ip"];
+    }
+    else{
+        atc_ip = "10.0.0.44"; //atc ip on local network
+    }
+    atc_ip = atc_ip + ":" + constants::from_drone;
 
 }

@@ -34,18 +34,18 @@ void video_transmission::start_transmission(){
     //start streaming
 
     //form command
-    std::string full_cmd = '';
+    //std::string full_cmd = "";
 
     //convert to proper command
-    char cmd[full_cmd.size()+1];
-    memcpy(cmd,full_cmd.c_str(),full_cmd.size()+1);
-    cmd[full_cmd.size()];
-    char *argv[] = {"sh", "-c", cmd, NULL};
+    //char cmd[full_cmd.size()+1];
+    //memcpy(cmd,full_cmd.c_str(),full_cmd.size()+1);
+    //cmd[full_cmd.size()];
+    //char *argv[] = {"sh", "-c", cmd, NULL};
 
     //execute
-    int status;
-    extern char** environ;
-    status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
+    //int status;
+    //extern char** environ;
+    //status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
 }
 
 void video_transmission::stop_transmission(){

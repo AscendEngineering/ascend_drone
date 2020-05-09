@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include "waypoints.h"
 
+
 int main(int argc, char** argv){
 
     //Args

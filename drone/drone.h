@@ -28,6 +28,11 @@ class drone{
         bool send_to_atc(std::string msg);
         std::vector<std::string> collect_messages();
 
+        /************* registration ***************/
+        bool register_with_atc();
+        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
+        bool unregister_with_atc();
+
         /********* flight controller *********/
         bool arm();
         bool takeoff(int altitude = 3);
@@ -65,6 +70,7 @@ class drone{
         
         //vars
         std::string drone_name;
+        std::string atc_ip;
         mavsdk::Mavsdk px4;
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
@@ -79,6 +85,9 @@ class drone{
         //disable copy and assign
         drone(const drone&);
         drone & operator=(const drone&);
+
+        //misc
+        void load_config_vars();
 
         
 
