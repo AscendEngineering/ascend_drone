@@ -92,8 +92,6 @@ manual_control::manual_control(System* system){
     clear();
 
     while(true){
-        //sent first so it is hit everytime
-        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
 
         char key = getKeyPress();
         if(key==' '){
@@ -102,6 +100,9 @@ manual_control::manual_control(System* system){
         else if(key=='x'){
             break;
         }
+
+        //sent first so it is hit everytime
+        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
 
         translateKeyPress(key,forward,right,down,yaw_right,rate);
         std::string msg = ("forward: " + std::to_string(forward) + 
