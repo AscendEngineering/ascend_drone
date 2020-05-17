@@ -101,9 +101,6 @@ manual_control::manual_control(System* system){
             break;
         }
 
-        //sent first so it is hit everytime
-        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
-
         translateKeyPress(key,forward,right,down,yaw_right,rate);
         std::string msg = ("forward: " + std::to_string(forward) + 
             ", right: " + std::to_string(right) +
@@ -114,6 +111,9 @@ manual_control::manual_control(System* system){
         for(int i =0; i< msg.size(); i++){
             addch(msg[i]);
         }
+
+        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
+        
         refresh();
     }
     endwin();

@@ -21,6 +21,7 @@ int main(int argc, char** argv){
     options.add_options()
         ("w,waypoint","Set flag to fly waypoints",cxxopts::value<bool>()->default_value("false"))
         ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
+        ("s,simulation","connect to computer simulation",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
     auto result = options.parse(argc, argv);
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv){
 /*---------------------------------------------------------------*/
 
 
-    drone ascendDrone;
+    drone ascendDrone(result["simulation"].as<bool>());
 
     //test motors
     if(test_motors){

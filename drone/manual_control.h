@@ -21,7 +21,7 @@ class manual_control{
         void translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate);
         const float HORIZONTAL_INCREMENTS = 1.0;
         const float VERTICAL_INCREMENTS = 0.2;
-        const float YAW_INCREMENTS = 0.1;
+        const float YAW_INCREMENTS = 18;
 
 };
 
