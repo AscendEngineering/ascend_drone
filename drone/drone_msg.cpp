@@ -36,6 +36,35 @@ std::string msg_generator::generate_land_request(const std::string& drone_name){
     return serialize(msg);
 }
 
+std::string msg_generator::generate_status_change(const std::string& drone_name, drone_status status){
+    ascend::msg msg;
+    msg.set_name(drone_name);
+
+    ascend::status_change_msg request;
+    
+    switch(status){
+        case AVAILABLE:{
+            request.set_status(ascend::drone_status::AVAILABLE);
+            break;
+        }
+        case IN_USE:{
+            request.set_status(ascend::drone_status::IN_USE);
+            break;
+        }
+        case REPAIR:{
+            request.set_status(ascend::drone_status::REPAIR);
+            break;
+        }
+        case RETIRED:{
+            request.set_status(ascend::drone_status::RETIRED);
+            break;
+        }
+    }
+    
+    *msg.mutable_status() = request;
+    return serialize(msg);
+}
+
 
 std::string msg_generator::serialize(const ascend::msg& to_send){
 

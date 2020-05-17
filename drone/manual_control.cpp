@@ -25,40 +25,39 @@ char getKeyPress(){
     }
 
     return cmd;
-
 }
 
-void translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate){
+void manual_control::translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate){
 
     if(key=='w'){ //forward
-        if(forward <=0){forward += 1;}
+        if(forward <=0){forward += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='s'){//backward
-        if(forward >= 0){forward -= 1;}
+        if(forward >= 0){forward -= HORIZONTAL_INCREMENTS;}
     }
     else if(key=='a'){// yaw left
-        if(yaw_right >= 0){yaw_right -= 1;}
+        if(yaw_right >= 0){yaw_right -= YAW_INCREMENTS;}
     }
     else if(key=='d'){//yaw right
-        if(yaw_right <=0){yaw_right += 1;}
+        if(yaw_right <=0){yaw_right += YAW_INCREMENTS;}
     }
     else if(key=='q'){//move left
-        if(right >= 0){right -= 1;}
+        if(right >= 0){right -= HORIZONTAL_INCREMENTS;}
     }
     else if(key=='e'){//move right
-        if(right <=0){right += 1;}
+        if(right <=0){right += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='r'){//rise (higher)
-        if(down >= 0){down -= 1;}
+        if(down >= 0){down -= VERTICAL_INCREMENTS;}
     }
     else if(key=='f'){//fall (lower)
-        if(down <=0){down += 1;}
+        if(down <=0){down += VERTICAL_INCREMENTS;}
     }
     else if(key=='t'){//rate increase
-        rate += 0.5;
+        rate += 0.1;
     }
     else if(key=='g'){//rate decrease
-        rate -= 0.5;
+        rate -= 0.1;
     }
     else{
         refresh();
@@ -93,8 +92,6 @@ manual_control::manual_control(System* system){
     clear();
 
     while(true){
-        //sent first so it is hit everytime
-        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
 
         char key = getKeyPress();
         if(key==' '){
@@ -114,6 +111,9 @@ manual_control::manual_control(System* system){
         for(int i =0; i< msg.size(); i++){
             addch(msg[i]);
         }
+
+        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
+        
         refresh();
     }
     endwin();

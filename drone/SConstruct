@@ -8,6 +8,7 @@ doms_directory = 'third_party/ascend_doms/'
 messaging_directory = doms_directory+'messaging/'
 messaging_lib = messaging_directory+'libs/'
 messaging_def = messaging_directory+'definitions/'
+log_path = 'third_party/spdlog-1.5.0/'
 
 #create proto files
 if(os.path.isdir(messaging_directory)):
@@ -22,7 +23,7 @@ messaging_files = Glob(messaging_lib + '*.cc')
 messaging_files.extend(['drone_msg.cpp'])
 
 #drone files
-drone_files = ['drone.cpp','video_transmission.cpp','manual_control.cpp',messaging_files]
+drone_files = ['drone.cpp','video_transmission.cpp','manual_control.cpp','waypoints.cpp',messaging_files]
 
 #DOMS fields
 doms_files = Glob(doms_directory + "*.cpp")
@@ -30,9 +31,15 @@ doms_files = Glob(doms_directory + "*.cpp")
 env=Environment(
     CPPDEFINES=[],
     CCFLAGS=['-g'],
-    LIBS=['zmq','protobuf','curses','mavsdk','mavsdk_action','mavsdk_telemetry','mavsdk_offboard'],
-	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
-    CPPPATH=['third_party/cpp-base64','/usr/local/include','/usr/local/include/mavsdk',messaging_lib,doms_directory],
+    LIBS=['zmq','protobuf','curses','mavsdk',
+        'mavsdk_shell','mavsdk_action',
+        'mavsdk_telemetry','mavsdk_offboard',
+        'mavsdk_mission','pthread','spdlog'],
+	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib,
+        log_path+'build'],
+    CPPPATH=['third_party/cpp-base64','/usr/local/include',
+        '/usr/local/include/mavsdk',messaging_lib,doms_directory,
+        log_path+'include'],
     SCONS_CXX_STANDARD='c++14')
 
 env.Program('drone', ['drone_main.cpp',drone_files, doms_files ])

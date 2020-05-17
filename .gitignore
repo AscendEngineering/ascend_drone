@@ -5,7 +5,10 @@ third_party/protobuf-3.11.2/
 third_party/raspicam/
 third_party/MAVSDK
 third_party/zeromq-4.3.2/
+third_party/cxxopts-2.2.0/
+third_party/spdlog-1.5.0/
 drone/drone
+drone/logs/*
 *~
 drone/config.txt
 *.swp
