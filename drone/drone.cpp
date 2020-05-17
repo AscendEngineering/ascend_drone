@@ -18,11 +18,10 @@
 using namespace mavsdk;
 
 
-
-
-drone::drone(): context(1),
+drone::drone(bool in_simulation): context(1),
                 send_socket(context, ZMQ_PUSH),
-                recv_socket(context, ZMQ_PULL)
+                recv_socket(context, ZMQ_PULL),
+                simulation(in_simulation)
                 {
  
     load_config_vars();
@@ -231,7 +230,12 @@ void drone::wait_for_mission_completion(){
 
 bool drone::connect_px4(){
 
-    ConnectionResult conn_result = px4.add_serial_connection("/dev/ttyS0");
+    if(!simulation){
+        ConnectionResult conn_result = px4.add_serial_connection("/dev/ttyS0");
+    }
+    else{
+        ConnectionResult conn_result = px4.add_udp_connection("",14550);
+    }
 
     std::cout << "Connecting";
     while (!px4.is_connected()) {

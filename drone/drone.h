@@ -21,7 +21,7 @@ This file has all the operations that the drone can perform
 class drone{
 
     public:
-        drone();
+        drone(bool in_simulation=false);
         ~drone();
 
         /********* messaging *********/
@@ -75,6 +75,7 @@ class drone{
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
+        bool simulation;
 
         //coms
         zmq::context_t context;
