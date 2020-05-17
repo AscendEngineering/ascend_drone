@@ -23,20 +23,20 @@ int main(int argc, char** argv){
         ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
         ("s,simulation","connect to computer simulation",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
-    auto result = options.parse(argc, argv);
+    auto cmd_line_args = options.parse(argc, argv);
 
-    if(result.count("help")){
+    if(cmd_line_args.count("help")){
         std::cout << options.help() << std::endl;
         exit(0);
     }
 
-    bool waypoint_mode = result["waypoint"].as<bool>();
-    bool test_motors = result["test"].as<bool>();
+    bool waypoint_mode = cmd_line_args["waypoint"].as<bool>();
+    bool test_motors = cmd_line_args["test"].as<bool>();
 
 /*---------------------------------------------------------------*/
 
-
-    drone ascendDrone(result["simulation"].as<bool>());
+    bool run_simulation = cmd_line_args["simulation"].as<bool>();
+    drone ascendDrone(run_simulation);
 
     //test motors
     if(test_motors){
