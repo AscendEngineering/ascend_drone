@@ -6,7 +6,6 @@
 #include "drone_msg.h"
 #include "manual_control.h"
 #include "utilities.h"
-#include "spdlog/spdlog.h"
 #include <mavsdk/mavsdk.h>
 #include <iostream>
 #include <curses.h>
@@ -25,18 +24,15 @@ drone::drone(bool in_simulation): context(1),
                 {
  
     load_config_vars();
-    utilities::setup_logging();
 
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
 
     //set up drone vehicle
-    spdlog::info("Connecting to PX4...");
     connect_px4();
 
     //register with ATC
-    spdlog::info("Registering with ATC...");
     register_with_atc();
 
 }

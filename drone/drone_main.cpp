@@ -44,11 +44,6 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    //video open
-    //send request to start streaming video
-
-    //receive back the address of where to stream to
-
     //arm
     std::cout << "Arming..." << std::endl;
     bool armed = ascendDrone.arm();
@@ -63,21 +58,16 @@ int main(int argc, char** argv){
 
     std::this_thread::sleep_for (std::chrono::seconds(10));
 
-    //select the mode
+    //select mode
     if(waypoint_mode){
 
-        //waypoint mode
         std::cout << "Entering Waypoint Mode..." << std::endl;
-        
-        //create mission
         waypoints new_mission;
         new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
         new_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
         
         //start mission
         bool succ_start = ascendDrone.start_mission(new_mission);
-
-        //wait for completion
         if(succ_start){
             ascendDrone.wait_for_mission_completion();
         }
@@ -104,7 +94,6 @@ int main(int argc, char** argv){
             std::this_thread::sleep_for (std::chrono::seconds(5));
         }
     }
-    
     
     
     // while(true){
