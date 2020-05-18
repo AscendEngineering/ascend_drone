@@ -1,6 +1,10 @@
 #include "drone_msg.h"
 
-std::string msg_generator::generate_heartbeat(const std::string& drone_name, int lng, int lat, int alt, int bat_percentage){
+std::string msg_generator::generate_heartbeat(const std::string& drone_name, 
+                                            int lng, 
+                                            int lat, 
+                                            int alt, 
+                                            int bat_percentage){
     ascend::msg msg;
     msg.set_name(drone_name);
 
@@ -34,7 +38,6 @@ std::string msg_generator::generate_land_request(const std::string& drone_name,
     msg.set_name(drone_name);
 
     ascend::landing_request_msg request;
-    //request.set_msg("LAND");
     request.set_desired_lng(-87.639000);
     request.set_desired_lat(41.899642);
     request.set_current_alt(50);
@@ -42,7 +45,8 @@ std::string msg_generator::generate_land_request(const std::string& drone_name,
     return serialize(msg);
 }
 
-std::string msg_generator::generate_status_change(const std::string& drone_name, drone_status status){
+std::string msg_generator::generate_status_change(const std::string& drone_name, 
+                                                drone_status status){
     ascend::msg msg;
     msg.set_name(drone_name);
 
