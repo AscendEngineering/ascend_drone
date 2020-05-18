@@ -8,7 +8,6 @@ doms_directory = 'third_party/ascend_doms/'
 messaging_directory = doms_directory+'messaging/'
 messaging_lib = messaging_directory+'libs/'
 messaging_def = messaging_directory+'definitions/'
-log_path = 'third_party/spdlog-1.5.0/'
 
 #create proto files
 if(os.path.isdir(messaging_directory)):
@@ -34,12 +33,10 @@ env=Environment(
     LIBS=['zmq','protobuf','curses','mavsdk',
         'mavsdk_shell','mavsdk_action',
         'mavsdk_telemetry','mavsdk_offboard',
-        'mavsdk_mission','pthread','spdlog'],
-	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib,
-        log_path+'build'],
+        'mavsdk_mission','pthread'],
+	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
     CPPPATH=['third_party/cpp-base64','/usr/local/include',
-        '/usr/local/include/mavsdk',messaging_lib,doms_directory,
-        log_path+'include'],
+        '/usr/local/include/mavsdk',messaging_lib,doms_directory],
     SCONS_CXX_STANDARD='c++14')
 
 env.Program('drone', ['drone_main.cpp',drone_files, doms_files ])
