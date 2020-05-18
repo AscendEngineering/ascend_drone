@@ -26,12 +26,18 @@ std::string msg_generator::generate_emergency(const std::string& drone_name){
     
 }
 
-std::string msg_generator::generate_land_request(const std::string& drone_name){
+std::string msg_generator::generate_land_request(const std::string& drone_name, 
+                                                double desired_lat, 
+                                                double desired_long,
+                                                double current_alt){
     ascend::msg msg;
     msg.set_name(drone_name);
 
     ascend::landing_request_msg request;
-    request.set_msg("LAND");
+    //request.set_msg("LAND");
+    request.set_desired_lng(-87.639000);
+    request.set_desired_lat(41.899642);
+    request.set_current_alt(50);
     *msg.mutable_landing_request() = request;
     return serialize(msg);
 }
