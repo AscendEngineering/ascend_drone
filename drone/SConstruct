@@ -22,7 +22,8 @@ drone_files = ['drone.cpp',
     'video_transmission.cpp',
     'manual_control.cpp',
     'waypoints.cpp',
-    'drone_msg.cpp']
+    'drone_msg.cpp',
+    'sensors.cpp']
 
 #shared fields
 doms_files = Glob(doms_directory + "*.cpp")
