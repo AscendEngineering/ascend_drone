@@ -16,6 +16,7 @@ This file has all the operations that the drone can perform
 #include <mavsdk/plugins/shell/shell.h>
 #include "waypoints.h"
 #include <memory>
+#include "sensors.h"
 
 
 class drone{
@@ -75,6 +76,7 @@ class drone{
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
+        std::shared_ptr<sensors> drone_sensors;
         bool simulation;
 
         //coms

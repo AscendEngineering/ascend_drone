@@ -243,6 +243,7 @@ bool drone::connect_px4(){
     system = &px4.system();
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
+    drone_sensors = std::make_shared<sensors>(telemetry);
 
     return true;
 }
@@ -310,7 +311,7 @@ void drone::test_motor(int motor){
     //spin all motors
     std::string motors = "";
     if(motor == -1){
-        motors = "123456";
+        motors = "1234";
     }
     else{
         motors = std::to_string(motor);

@@ -38,17 +38,18 @@ int main(int argc, char** argv){
     bool run_simulation = cmd_line_args["simulation"].as<bool>();
     drone ascendDrone(run_simulation);
 
-    //test motors
-    if(test_motors){
-        ascendDrone.test_motor();
-        return 0;
-    }
-
     //arm
     std::cout << "Arming..." << std::endl;
     bool armed = ascendDrone.arm();
     if(armed){std::cout << "...Armed" << std::endl;}
     else{std::cerr << "ARMING FAILURE" << std::endl;exit(1);}
+
+    //test motors
+    if(test_motors){
+        std::cout << "Testing Motor" << std::endl;
+        ascendDrone.test_motor();
+        return 0;
+    }
 
     //takeoff
     std::cout << "Taking off..." << std::endl;
