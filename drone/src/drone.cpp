@@ -221,16 +221,7 @@ void drone::wait_for_mission_completion(){
     });
 
     //wait until done
-    while(progress != 1){
-        
-        //temp for debugging
-        {
-            drone_sensors->print_all();
-
-            //sleep
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-        }
-    }
+    while(progress != 1){}
 }
 
 bool drone::connect_px4(){
