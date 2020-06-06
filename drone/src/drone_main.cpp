@@ -64,8 +64,8 @@ int main(int argc, char** argv){
 
         std::cout << "Entering Waypoint Mode..." << std::endl;
         waypoints new_mission;
-        new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998);
-        new_mission.add_waypoint(-87.63822525307192,41.89918538029315,9.999999999999998);
+        new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998,5);
+        new_mission.add_waypoint(-87.639227,41.899937,9.999999999999998,5);
         
         //start mission
         bool succ_start = ascendDrone.start_mission(new_mission);

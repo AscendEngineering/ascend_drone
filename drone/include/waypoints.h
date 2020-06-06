@@ -16,7 +16,7 @@ class waypoints{
         //upload waypoints
         void add_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionItem> >& waypoints);
         void add_waypoints(::ascend::waypointList_msg waypoint_list);
-        void add_waypoint(double latitude, double longitude, double altitude, double speed=0.5);
+        void add_waypoint(double latitude, double longitude, double altitude, double speed=1);
 
         const std::vector<std::shared_ptr<mavsdk::MissionItem>>& get_waypoints() const;
         

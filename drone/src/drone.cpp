@@ -209,19 +209,16 @@ void drone::wait_for_mission_completion(){
 
     //setup variables
     bool finished = false;
-    auto prom = std::make_shared<std::promise<float>>();
-    auto future_result = prom->get_future();
+    float progress = 0;
 
     //subscribe to the updates 
-    m_mission->subscribe_progress([prom](int current, int total) { prom->set_value((float)(current/total));});
+    m_mission->subscribe_progress([&](int current, int total) { 
+        progress = (float)(current/total); 
+        std::cout << progress << std::endl;    
+    });
 
-    //wait until reached last waypoint
-    while(!finished){
-        float result = future_result.get();
-        if(result == 1.0){
-            finished = true;
-        }
-    }
+    //wait until done
+    while(progress != 1){}
 }
 
 bool drone::connect_px4(){
@@ -292,7 +289,8 @@ bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionIt
     auto future_result = prom->get_future();
 
     //for each waypoint
-    m_mission->upload_mission_async(waypoints, [prom](Mission::Result result) { prom->set_value(result); });
+    m_mission->upload_mission_async(waypoints, 
+        [prom](Mission::Result result) { prom->set_value(result); });
     const Mission::Result result = future_result.get();
     
     if(result==Mission::Result::SUCCESS){
@@ -311,7 +309,7 @@ void drone::test_motor(int motor){
     //spin all motors
     std::string motors = "";
     if(motor == -1){
-        motors = "1234";
+        motors = "123456";
     }
     else{
         motors = std::to_string(motor);
