@@ -28,6 +28,9 @@ drone::drone(bool in_simulation): context(1),
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
+    int linger_time = 1000;
+    zmq_setsockopt(send_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
+    zmq_setsockopt(recv_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
 
     //set up drone vehicle
     connect_px4();
@@ -218,7 +221,16 @@ void drone::wait_for_mission_completion(){
     });
 
     //wait until done
-    while(progress != 1){}
+    while(progress != 1){
+        
+        //temp for debugging
+        {
+            drone_sensors->print_all();
+
+            //sleep
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
+    }
 }
 
 bool drone::connect_px4(){

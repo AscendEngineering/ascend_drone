@@ -4,7 +4,15 @@
 #include <mavsdk/plugins/telemetry/telemetry.h>
 
 using position = mavsdk::Telemetry::Position;
+    //double latitude_deg
+    //double longitude_deg
+    //float absolute_altitude_m
+    //float relative_altitude_m 
+
 using velocity = mavsdk::Telemetry::VelocityNED;
+    //float north_m_s
+    //float east_m_s
+    //float down_m_s
 
 
 class sensors{
@@ -30,6 +38,8 @@ class sensors{
         float get_roll();
         float get_pitch();
         float get_yaw();
+
+        void print_all();
 
     private:
         //disable copy and assign
