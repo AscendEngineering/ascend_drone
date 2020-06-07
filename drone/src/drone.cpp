@@ -38,6 +38,9 @@ drone::drone(bool in_simulation): context(1),
     //register with ATC
     register_with_atc();
 
+    //start heartbeat
+    //heartbeat_thread = std::make_shared<std::thread>(&drone::start_heartbeat,this);
+
 }
 
 drone::~drone(){
@@ -343,5 +346,38 @@ void drone::load_config_vars(){
         atc_ip = "10.0.0.44"; //atc ip on local network
     }
     atc_ip = atc_ip + ":" + constants::from_drone;
+
+}
+
+void drone::start_heartbeat(){
+    beat_heart = true;
+    boost::asio::io_context io;
+    boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
+    t.async_wait(boost::bind(&drone::send_heartbeat,this,
+        boost::asio::placeholders::error, &t));
+    io.run();
+}
+
+void drone::send_heartbeat(const boost::system::error_code& /*e*/,
+    boost::asio::steady_timer* t){
+
+    if(beat_heart){
+        //collect sensor info (lat,lng,alt,battery)
+        position current_pos = drone_sensors->get_position();
+        float current_battery = drone_sensors->get_battery();
+
+        //send to atc
+        send_heartbeat(current_pos.longitude_deg,
+            current_pos.latitude_deg,
+            current_pos.absolute_altitude_m, 
+            current_battery);
+
+    }
+
+    std::cout << "Heartbeat sent" << std::endl;
+
+    //add self back onto queue
+    t->expires_at(t->expiry() + boost::asio::chrono::seconds(5));
+    t->async_wait(boost::bind(&drone::send_heartbeat,this, boost::asio::placeholders::error, t));
 
 }

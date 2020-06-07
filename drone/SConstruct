@@ -35,7 +35,7 @@ env=Environment(
     LIBS=['zmq','protobuf','curses','mavsdk',
         'mavsdk_shell','mavsdk_action',
         'mavsdk_telemetry','mavsdk_offboard',
-        'mavsdk_mission','pthread'],
+        'mavsdk_mission','pthread','libboost_system'],
 	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
     CPPPATH=['include/','third_party/cpp-base64','/usr/local/include',
         '/usr/local/include/mavsdk',messaging_lib,doms_directory],

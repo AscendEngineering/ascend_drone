@@ -17,6 +17,9 @@ This file has all the operations that the drone can perform
 #include "waypoints.h"
 #include <memory>
 #include "sensors.h"
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+
 
 
 class drone{
@@ -77,8 +80,9 @@ class drone{
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
         std::shared_ptr<sensors> drone_sensors;
+        std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
-
+        
         //coms
         zmq::context_t context;
         zmq::socket_t send_socket;
@@ -91,6 +95,12 @@ class drone{
 
         //misc
         void load_config_vars();
+
+        //heartbeat
+        bool beat_heart;
+        void start_heartbeat();
+        void send_heartbeat(const boost::system::error_code& /*e*/,
+            boost::asio::steady_timer* t);
 
         
 
