@@ -56,6 +56,13 @@ bool drone::send_to_atc(std::string msg){
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }
 
+bool drone::send_ack(){
+    
+    return comm::send_ack(send_socket,
+        drone_name,
+        utilities::resolveDNS("ascenddeliveries.duckdns.org") + constants::from_drone);
+}
+
 
 std::vector<std::string> drone::collect_messages(){
     std::vector<std::string> messages;
@@ -81,7 +88,7 @@ std::vector<std::string> drone::collect_messages(){
             }
 
             data = comm::get_msg_data(recv_socket);
-            comm::send_ack(send_socket,drone_name,"tcp://localhost:" + constants::from_drone);
+            send_ack();
             messages.push_back(data);
         }
         else{
@@ -97,9 +104,17 @@ bool drone::register_with_atc(){
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }
 
-bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
-    std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
-    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+void drone::send_heartbeat(){
+        //collect sensor info (lat,lng,alt,battery)
+        position current_pos = drone_sensors->get_position();
+        float current_battery = drone_sensors->get_battery();
+
+        //send to atc
+        send_heartbeat(current_pos.longitude_deg,
+            current_pos.latitude_deg,
+            current_pos.absolute_altitude_m, 
+            current_battery);
+
 }
 
 bool drone::unregister_with_atc(){
@@ -349,35 +364,7 @@ void drone::load_config_vars(){
 
 }
 
-void drone::start_heartbeat(){
-    beat_heart = true;
-    boost::asio::io_context io;
-    boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
-    t.async_wait(boost::bind(&drone::send_heartbeat,this,
-        boost::asio::placeholders::error, &t));
-    io.run();
-}
-
-void drone::send_heartbeat(const boost::system::error_code& /*e*/,
-    boost::asio::steady_timer* t){
-
-    if(beat_heart){
-        //collect sensor info (lat,lng,alt,battery)
-        position current_pos = drone_sensors->get_position();
-        float current_battery = drone_sensors->get_battery();
-
-        //send to atc
-        send_heartbeat(current_pos.longitude_deg,
-            current_pos.latitude_deg,
-            current_pos.absolute_altitude_m, 
-            current_battery);
-
-    }
-
-    std::cout << "Heartbeat sent" << std::endl;
-
-    //add self back onto queue
-    t->expires_at(t->expiry() + boost::asio::chrono::seconds(5));
-    t->async_wait(boost::bind(&drone::send_heartbeat,this, boost::asio::placeholders::error, t));
-
+bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
+    std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
+    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }

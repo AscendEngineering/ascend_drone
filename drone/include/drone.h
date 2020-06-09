@@ -30,11 +30,13 @@ class drone{
 
         /********* messaging *********/
         bool send_to_atc(std::string msg);
+        bool send_ack();
         std::vector<std::string> collect_messages();
 
         /************* registration ***************/
         bool register_with_atc();
-        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
+        void send_heartbeat();
+        
         bool unregister_with_atc();
 
         /********* flight controller *********/
@@ -55,6 +57,7 @@ class drone{
         int total_mission_items();
 
         void wait_for_mission_completion();
+        
         
 
     private:
@@ -95,12 +98,9 @@ class drone{
 
         //misc
         void load_config_vars();
+        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
 
-        //heartbeat
-        bool beat_heart;
-        void start_heartbeat();
-        void send_heartbeat(const boost::system::error_code& /*e*/,
-            boost::asio::steady_timer* t);
+        
 
         
 
