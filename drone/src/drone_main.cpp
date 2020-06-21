@@ -86,6 +86,9 @@ int main(int argc, char** argv){
     options.add_options()
         ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
         ("s,simulation","connect to computer simulation",cxxopts::value<bool>()->default_value("false"))
+        ("v,video-ip","send video to this ip address",cxxopts::value<std::string>())
+        ("a,video-always-on","always send the video",cxxopts::value<bool>()->default_value("false"))
+        ("m,manual","manual flight mode",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
     auto cmd_line_args = options.parse(argc, argv);
 
@@ -96,6 +99,7 @@ int main(int argc, char** argv){
 
     bool test_motors = cmd_line_args["test"].as<bool>();
     bool run_simulation = cmd_line_args["simulation"].as<bool>();
+    bool manual_mode = cmd_line_args["manual"].as<bool>();
 
 /*---------------------------------------------------------------*/
 
@@ -110,24 +114,32 @@ int main(int argc, char** argv){
         return 0;
     }
     
-    //wait for commands from ATC
-    while(true){
-        std::vector<std::string> messages = ascendDrone.collect_messages();
+    if(manual_mode){
+        ascendDrone.arm();
+        ascendDrone.takeoff();
+        std::this_thread::sleep_for (std::chrono::seconds(10));
+        ascendDrone.manual();
+    }
+    else{
+        //wait for commands from ATC
+        while(true){
+            std::vector<std::string> messages = ascendDrone.collect_messages();
 
-        if(messages.size() > 0){
-            for(auto msg: messages){
-                ascend::msg recvd_msg = msg_generator::deserialize(msg);
-                ::process_request(recvd_msg, ascendDrone);
+            if(messages.size() > 0){
+                for(auto msg: messages){
+                    ascend::msg recvd_msg = msg_generator::deserialize(msg);
+                    ::process_request(recvd_msg, ascendDrone);
+                }
             }
-        }
 
-        //heartbeat
-        auto now = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_time = now-last_heartbeat;
-        if(elapsed_time.count() > 5.0){
-            last_heartbeat=now;
-            ascendDrone.send_heartbeat();
-        } 
+            //heartbeat
+            auto now = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_time = now-last_heartbeat;
+            if(elapsed_time.count() > 5.0){
+                last_heartbeat=now;
+                ascendDrone.send_heartbeat();
+            } 
+        }
     }
     
     return 0;

@@ -60,7 +60,7 @@ bool drone::send_ack(){
     
     return comm::send_ack(send_socket,
         drone_name,
-        utilities::resolveDNS("ascenddeliveries.duckdns.org") + constants::from_drone);
+        utilities::resolveDNS(atc_ip));
 }
 
 
@@ -183,6 +183,9 @@ bool drone::kill(){
 
 void drone::manual(){
     manual_control drone_control(system);
+    auto ground_pos = drone_sensors->get_position();
+    std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
+    std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
 }
 
 bool drone::start_mission(const waypoints& mission){
@@ -251,7 +254,7 @@ bool drone::connect_px4(){
         ConnectionResult conn_result = px4.add_udp_connection("",14550);
     }
 
-    std::cout << "Connecting";
+    std::cout << "Connecting" << std::endl;
     while (!px4.is_connected()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::cout<<".";
