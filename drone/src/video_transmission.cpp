@@ -14,7 +14,7 @@
 #include <ctime>
 #include <thread>
 
-video_transmission::video_transmission(const std::string worker_address){
+video_transmission::video_transmission(const std::string& worker_address){
     this->worker_address=worker_address;
     start_transmission();
 }
