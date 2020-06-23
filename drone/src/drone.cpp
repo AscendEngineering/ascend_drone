@@ -28,12 +28,18 @@ drone::drone(bool in_simulation): context(1),
     //set up comms
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
+    int linger_time = 1000;
+    zmq_setsockopt(send_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
+    zmq_setsockopt(recv_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
 
     //set up drone vehicle
     connect_px4();
 
     //register with ATC
     register_with_atc();
+
+    //start heartbeat
+    //heartbeat_thread = std::make_shared<std::thread>(&drone::start_heartbeat,this);
 
 }
 
@@ -48,6 +54,13 @@ drone::~drone(){
 bool drone::send_to_atc(std::string msg){
     //send
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+}
+
+bool drone::send_ack(){
+    
+    return comm::send_ack(send_socket,
+        drone_name,
+        utilities::resolveDNS(atc_ip));
 }
 
 
@@ -75,7 +88,7 @@ std::vector<std::string> drone::collect_messages(){
             }
 
             data = comm::get_msg_data(recv_socket);
-            comm::send_ack(send_socket,drone_name,"tcp://localhost:" + constants::from_drone);
+            send_ack();
             messages.push_back(data);
         }
         else{
@@ -91,9 +104,17 @@ bool drone::register_with_atc(){
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }
 
-bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
-    std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
-    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+void drone::send_heartbeat(){
+        //collect sensor info (lat,lng,alt,battery)
+        position current_pos = drone_sensors->get_position();
+        float current_battery = drone_sensors->get_battery();
+
+        //send to atc
+        send_heartbeat(current_pos.longitude_deg,
+            current_pos.latitude_deg,
+            current_pos.absolute_altitude_m, 
+            current_battery);
+
 }
 
 bool drone::unregister_with_atc(){
@@ -162,6 +183,9 @@ bool drone::kill(){
 
 void drone::manual(){
     manual_control drone_control(system);
+    auto ground_pos = drone_sensors->get_position();
+    std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
+    std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
 }
 
 bool drone::start_mission(const waypoints& mission){
@@ -209,19 +233,16 @@ void drone::wait_for_mission_completion(){
 
     //setup variables
     bool finished = false;
-    auto prom = std::make_shared<std::promise<float>>();
-    auto future_result = prom->get_future();
+    float progress = 0;
 
     //subscribe to the updates 
-    m_mission->subscribe_progress([prom](int current, int total) { prom->set_value((float)(current/total));});
+    m_mission->subscribe_progress([&](int current, int total) { 
+        progress = (float)(current/total); 
+        std::cout << progress << std::endl;    
+    });
 
-    //wait until reached last waypoint
-    while(!finished){
-        float result = future_result.get();
-        if(result == 1.0){
-            finished = true;
-        }
-    }
+    //wait until done
+    while(progress != 1){}
 }
 
 bool drone::connect_px4(){
@@ -233,7 +254,7 @@ bool drone::connect_px4(){
         ConnectionResult conn_result = px4.add_udp_connection("",14550);
     }
 
-    std::cout << "Connecting";
+    std::cout << "Connecting" << std::endl;
     while (!px4.is_connected()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::cout<<".";
@@ -243,6 +264,7 @@ bool drone::connect_px4(){
     system = &px4.system();
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
+    drone_sensors = std::make_shared<sensors>(telemetry);
 
     return true;
 }
@@ -291,7 +313,8 @@ bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionIt
     auto future_result = prom->get_future();
 
     //for each waypoint
-    m_mission->upload_mission_async(waypoints, [prom](Mission::Result result) { prom->set_value(result); });
+    m_mission->upload_mission_async(waypoints, 
+        [prom](Mission::Result result) { prom->set_value(result); });
     const Mission::Result result = future_result.get();
     
     if(result==Mission::Result::SUCCESS){
@@ -342,4 +365,9 @@ void drone::load_config_vars(){
     }
     atc_ip = atc_ip + ":" + constants::from_drone;
 
+}
+
+bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
+    std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
+    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }

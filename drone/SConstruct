@@ -17,15 +17,17 @@ else:
     print("SUBMODULES NEED TO BE PULLED, EXECUTE IN TOP DIRECTORY: \"git submodule update --init --recursive\"")
     exit(1)
 
-#messaging
-messaging_files = Glob(messaging_lib + '*.cc')
-messaging_files.extend(['drone_msg.cpp'])
-
 #drone files
-drone_files = ['drone.cpp','video_transmission.cpp','manual_control.cpp','waypoints.cpp',messaging_files]
+drone_files = ['drone.cpp',
+    'video_transmission.cpp',
+    'manual_control.cpp',
+    'waypoints.cpp',
+    'drone_msg.cpp',
+    'sensors.cpp']
 
-#DOMS fields
+#shared fields
 doms_files = Glob(doms_directory + "*.cpp")
+messaging_files = Glob(messaging_lib + '*.cc')
 
 env=Environment(
     CPPDEFINES=[],
@@ -33,10 +35,15 @@ env=Environment(
     LIBS=['zmq','protobuf','curses','mavsdk',
         'mavsdk_shell','mavsdk_action',
         'mavsdk_telemetry','mavsdk_offboard',
-        'mavsdk_mission','pthread'],
+        'mavsdk_mission','pthread','libboost_system'],
 	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
-    CPPPATH=['third_party/cpp-base64','/usr/local/include',
+    CPPPATH=['include/','third_party/cpp-base64','/usr/local/include',
         '/usr/local/include/mavsdk',messaging_lib,doms_directory],
     SCONS_CXX_STANDARD='c++14')
 
-env.Program('drone', ['drone_main.cpp',drone_files, doms_files ])
+#store *.o elsewhere
+env.VariantDir('bin', 'src', duplicate=0)
+drone_files = ['bin/'+path for path in drone_files]
+
+#compile
+env.Program('drone', ['bin/drone_main.cpp',drone_files, doms_files, messaging_files])

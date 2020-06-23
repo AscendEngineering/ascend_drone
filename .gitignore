@@ -13,3 +13,4 @@ drone/logs/*
 drone/config.txt
 *.swp
 config.txt
+bin

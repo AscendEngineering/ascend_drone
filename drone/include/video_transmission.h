@@ -9,7 +9,7 @@ class video_transmission{
 //called stop on
 
 public:
-    video_transmission(const std::string worker_address);
+    video_transmission(const std::string& worker_address);
     ~video_transmission();
 
 private:

@@ -16,6 +16,10 @@ This file has all the operations that the drone can perform
 #include <mavsdk/plugins/shell/shell.h>
 #include "waypoints.h"
 #include <memory>
+#include "sensors.h"
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+
 
 
 class drone{
@@ -26,11 +30,13 @@ class drone{
 
         /********* messaging *********/
         bool send_to_atc(std::string msg);
+        bool send_ack();
         std::vector<std::string> collect_messages();
 
         /************* registration ***************/
         bool register_with_atc();
-        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
+        void send_heartbeat();
+        
         bool unregister_with_atc();
 
         /********* flight controller *********/
@@ -51,6 +57,7 @@ class drone{
         int total_mission_items();
 
         void wait_for_mission_completion();
+        
         
 
     private:
@@ -75,8 +82,10 @@ class drone{
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
+        std::shared_ptr<sensors> drone_sensors;
+        std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
-
+        
         //coms
         zmq::context_t context;
         zmq::socket_t send_socket;
@@ -89,6 +98,9 @@ class drone{
 
         //misc
         void load_config_vars();
+        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
+
+        
 
         
 

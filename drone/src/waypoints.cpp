@@ -10,7 +10,7 @@ void waypoints::add_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionI
     m_waypoints.insert(m_waypoints.end(),waypoints.begin(),waypoints.end());
 }
 
-void waypoints::add_waypoint(double latitude, double longitude, double altitude, double speed /*=0.5*/){
+void waypoints::add_waypoint(double latitude, double longitude, double altitude, double speed /*=1*/){
     std::shared_ptr<mavsdk::MissionItem> temp_item = std::make_shared<mavsdk::MissionItem>();
     temp_item->set_speed(speed);
     temp_item->set_position(latitude,longitude);
