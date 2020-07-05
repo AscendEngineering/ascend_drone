@@ -8,11 +8,12 @@
 #include <spawn.h>
 #include <csignal>
 #include <unistd.h>
+#include <fstream> 
 
 //for timing
 #include <chrono>
 #include <ctime>
-#include <thread>
+
 
 video_transmission::video_transmission(const std::string& worker_address){
     this->worker_address=worker_address;
@@ -24,30 +25,34 @@ video_transmission::~video_transmission(){
 }
 
 void video_transmission::start_transmission(){
+    
+    //delete file in /var/tmp/video_ip 
+    int result = remove(constants::video_file.c_str());
 
-    //generate SDP file
+    //create file in /var/tmp/video_ip and write the ip to it
+    std::ofstream outfile (constants::video_file);
+    outfile << worker_address << std::endl;
+    outfile.close();
 
-    //send SDP file to landing assist worker address
+    //make sure video closes when exiting all cases
+    auto stop_trans = 
+        [] (int i) { system("systemctl --user stop video_transmission"); std::cout << "stopped" << std::endl;exit(0); };
 
-    //wait for go ahead to start streaming
-
-    //start streaming
-
-    //form command
-    //std::string full_cmd = "";
-
-    //convert to proper command
-    //char cmd[full_cmd.size()+1];
-    //memcpy(cmd,full_cmd.c_str(),full_cmd.size()+1);
-    //cmd[full_cmd.size()];
-    //char *argv[] = {"sh", "-c", cmd, NULL};
-
-    //execute
-    //int status;
-    //extern char** environ;
-    //status = posix_spawn(&pid, "/bin/sh", NULL,NULL,argv,environ);
+    //^C
+    signal(SIGINT, stop_trans);
+    //abort()
+    signal(SIGABRT, stop_trans);
+    //sent by "kill" command
+    signal(SIGTERM, stop_trans);
+    signal(SIGKILL, stop_trans);
+    //^Z
+    signal(SIGTSTP, stop_trans);
+    
+    //start the video transmission service
+    system("systemctl --user start video_transmission");
 }
 
 void video_transmission::stop_transmission(){
-    int status = kill(pid+1,SIGTERM);
+    std::cout << "Stopping transmission..." << std::endl;
+    system("systemctl --user stop video_transmission");
 }

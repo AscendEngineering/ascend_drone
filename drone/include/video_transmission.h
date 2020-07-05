@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <thread>
 
 class video_transmission{
     
@@ -20,7 +21,7 @@ private:
     video_transmission& operator=(const video_transmission&);
     video_transmission(const video_transmission&);
     std::string worker_address;
-    pid_t pid;
+    std::shared_ptr<std::thread> video_thread;
 };
 
 

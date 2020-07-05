@@ -75,7 +75,9 @@ namespace {
     }    
 }
 
-
+void exiting() {
+    std::cout << "Exiting" << std::endl;
+}
 
 
 int main(int argc, char** argv){
@@ -86,7 +88,7 @@ int main(int argc, char** argv){
     options.add_options()
         ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
         ("s,simulation","connect to computer simulation",cxxopts::value<bool>()->default_value("false"))
-        ("v,video-ip","send video to this ip address",cxxopts::value<std::string>())
+        ("v,video-ip","send video to this ip address",cxxopts::value<std::string>()->default_value(""))
         ("a,video-always-on","always send the video",cxxopts::value<bool>()->default_value("false"))
         ("m,manual","manual flight mode",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
@@ -100,6 +102,8 @@ int main(int argc, char** argv){
     bool test_motors = cmd_line_args["test"].as<bool>();
     bool run_simulation = cmd_line_args["simulation"].as<bool>();
     bool manual_mode = cmd_line_args["manual"].as<bool>();
+    bool video_always_on = cmd_line_args["video-always-on"].as<bool>();
+    std::string video_ip = cmd_line_args["video-ip"].as<std::string>();
 
 /*---------------------------------------------------------------*/
 
@@ -112,6 +116,12 @@ int main(int argc, char** argv){
         std::cout << "Testing Motor" << std::endl;
         ascendDrone.test_motor();
         return 0;
+    }
+
+    //video
+    std::unique_ptr<video_transmission> video_ptr;
+    if(video_always_on && video_ip!=""){
+        video_ptr = std::make_unique<video_transmission>(video_ip);
     }
     
     if(manual_mode){
