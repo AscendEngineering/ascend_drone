@@ -182,15 +182,13 @@ void drone::manual(){
 
     bool operating = true;
     while(operating){
-        manual_control drone_control(system);
-        land();
 
         //get next operation
         bool correct_resp = false;
         while(!correct_resp){
 
             std::string user_resp;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Exit" << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Magenet On \n3)Magnet Off \n4)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -199,10 +197,20 @@ void drone::manual(){
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 takeoff();
                 std::this_thread::sleep_for(std::chrono::seconds(10));
+                manual_control drone_control(system);
+                land();
             }
             else if(user_resp=="2"){
+                package_control::get_instance().pickup();
+            }
+            else if(user_resp=="3"){
+                package_control::get_instance().release();
+            }
+            else if(user_resp=="4"){
                 return;
             }
+            
+            
         }
 
         //output current position

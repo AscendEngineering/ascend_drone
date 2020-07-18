@@ -21,7 +21,6 @@ class manual_control{
         manual_control(System* system);//,std::shared_ptr<mavsdk::Action> action);
 
     private:
-        package_control package;
         void translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate);
         // void manual_takeoff(std::shared_ptr<mavsdk::Action> action);
         // void manual_land(std::shared_ptr<mavsdk::Action> action);

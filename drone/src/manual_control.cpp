@@ -66,7 +66,7 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
         forward=0;yaw_right=0;right=0;down=0;
     }
     else if(key=='p'){//package
-        package.flip_switch();
+        package_control::get_instance().flip_switch();
     }
     else{
         refresh();
@@ -108,12 +108,6 @@ manual_control::manual_control(System* system){
         }
         else if(key=='x'){
             break;
-        }
-        else if(key=='l'){ //launch
-            //manual_takeoff(system);
-        }
-        else if(key=='k'){ //kill
-            //manual_land(system);
         }
 
         translateKeyPress(key,forward,right,down,yaw_right,rate);

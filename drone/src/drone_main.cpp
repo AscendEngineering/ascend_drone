@@ -125,9 +125,6 @@ int main(int argc, char** argv){
     }
     
     if(manual_mode){
-        ascendDrone.arm();
-        ascendDrone.takeoff();
-        std::this_thread::sleep_for (std::chrono::seconds(10));
         ascendDrone.manual();
     }
     else{
