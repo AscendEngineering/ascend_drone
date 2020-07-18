@@ -38,9 +38,6 @@ drone::drone(bool in_simulation): context(1),
     //register with ATC
     register_with_atc();
 
-    //start heartbeat
-    //heartbeat_thread = std::make_shared<std::thread>(&drone::start_heartbeat,this);
-
 }
 
 drone::~drone(){
@@ -182,10 +179,37 @@ bool drone::kill(){
 }
 
 void drone::manual(){
-    manual_control drone_control(system);
-    auto ground_pos = drone_sensors->get_position();
-    std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
-    std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
+
+    bool operating = true;
+    while(operating){
+        manual_control drone_control(system);
+        land();
+
+        //get next operation
+        bool correct_resp = false;
+        while(!correct_resp){
+
+            std::string user_resp;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Exit" << std::endl;
+            std::cin >> user_resp;
+
+            if(user_resp == "1"){
+                correct_resp = true;
+                arm();
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                takeoff();
+                std::this_thread::sleep_for(std::chrono::seconds(10));
+            }
+            else if(user_resp=="2"){
+                return;
+            }
+        }
+
+        //output current position
+        auto ground_pos = drone_sensors->get_position();
+        std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
+        std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
+    }
 }
 
 bool drone::start_mission(const waypoints& mission){

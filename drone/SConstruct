@@ -23,7 +23,8 @@ drone_files = ['drone.cpp',
     'manual_control.cpp',
     'waypoints.cpp',
     'drone_msg.cpp',
-    'sensors.cpp']
+    'sensors.cpp',
+    'package_control.cpp']
 
 #shared fields
 doms_files = Glob(doms_directory + "*.cpp")
@@ -35,7 +36,7 @@ env=Environment(
     LIBS=['zmq','protobuf','curses','mavsdk',
         'mavsdk_shell','mavsdk_action',
         'mavsdk_telemetry','mavsdk_offboard',
-        'mavsdk_mission','pthread','libboost_system'],
+        'mavsdk_mission','pthread','libboost_system','wiringPi'],
 	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
     CPPPATH=['include/','third_party/cpp-base64','/usr/local/include',
         '/usr/local/include/mavsdk',messaging_lib,doms_directory],

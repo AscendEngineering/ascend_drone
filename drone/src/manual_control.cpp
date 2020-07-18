@@ -4,6 +4,8 @@
 #include <iostream>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <stdlib.h>
+#include <chrono> 
+#include <thread> 
 
 char getKeyPress(){
 
@@ -26,6 +28,7 @@ char getKeyPress(){
 
     return cmd;
 }
+
 
 void manual_control::translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate){
 
@@ -58,6 +61,12 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
     }
     else if(key=='g'){//rate decrease
         rate -= 0.1;
+    }
+    else if(key=='0'){//reset all
+        forward=0;yaw_right=0;right=0;down=0;
+    }
+    else if(key=='p'){//package
+        package.flip_switch();
     }
     else{
         refresh();
@@ -100,6 +109,12 @@ manual_control::manual_control(System* system){
         else if(key=='x'){
             break;
         }
+        else if(key=='l'){ //launch
+            //manual_takeoff(system);
+        }
+        else if(key=='k'){ //kill
+            //manual_land(system);
+        }
 
         translateKeyPress(key,forward,right,down,yaw_right,rate);
         std::string msg = ("forward: " + std::to_string(forward) + 
@@ -128,3 +143,27 @@ manual_control::manual_control(System* system){
     }
 }
 
+// void manual_control::manual_takeoff(std::shared_ptr<mavsdk::Action> action){
+//     std::shared_ptr<mavsdk::Action> action = std::make_shared<Action>(*system);
+//     std::shared_ptr<mavsdk::Telemetry> telemetry = std::make_shared<Telemetry>(*system);
+//     //check our health
+//     while (telemetry->health_all_ok() != true) {
+//         Telemetry::Health health = telemetry->health();
+//         std::cerr << "Drone is not healthy: " << health << std::endl;
+//         std::this_thread::sleep_for(std::chrono::seconds(1));
+//     }
+
+//     //arm
+//     const Action::Result arm_result = action->arm();
+//     std::this_thread::sleep_for(std::chrono::seconds(5));
+
+//     //takeoff
+//     action->set_takeoff_altitude(5);
+//     const Action::Result takeoff_result = action->takeoff();
+//     std::this_thread::sleep_for(std::chrono::seconds(5));
+// }
+
+// void manual_control::manual_land(std::shared_ptr<mavsdk::Action> action){
+//     const Action::Result land_result = action->land();
+
+// }

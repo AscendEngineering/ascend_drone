@@ -131,6 +131,7 @@ int main(int argc, char** argv){
         ascendDrone.manual();
     }
     else{
+        
         //wait for commands from ATC
         while(true){
             std::vector<std::string> messages = ascendDrone.collect_messages();
