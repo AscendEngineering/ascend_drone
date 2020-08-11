@@ -1,5 +1,6 @@
 #include "drone_msg.h"
 
+
 std::string msg_generator::generate_heartbeat(const std::string& drone_name, 
                                             int lng, 
                                             int lat, 
