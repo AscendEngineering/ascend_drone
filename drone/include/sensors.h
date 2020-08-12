@@ -9,7 +9,7 @@ using position = mavsdk::Telemetry::Position;
     //float absolute_altitude_m
     //float relative_altitude_m 
 
-using velocity = mavsdk::Telemetry::VelocityNED;
+using velocity = mavsdk::Telemetry::VelocityNed;
     //float north_m_s
     //float east_m_s
     //float down_m_s

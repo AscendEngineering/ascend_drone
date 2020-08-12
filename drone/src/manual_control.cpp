@@ -88,7 +88,7 @@ manual_control::manual_control(System* system){
     Offboard::Result offboard_result = offboard->start();
 
     //error check
-    if(offboard_result != Offboard::Result::SUCCESS){
+    if(offboard_result != Offboard::Result::Success){
         std::cerr << "Error gaining offboard control" << std::endl;
     }
 
@@ -132,7 +132,7 @@ manual_control::manual_control(System* system){
     offboard_result = offboard->stop();
     
     //error check
-    if(offboard_result != Offboard::Result::SUCCESS){
+    if(offboard_result != Offboard::Result::Success){
         std::cerr << "Error stopping offboard control" << std::endl;
     }
 }

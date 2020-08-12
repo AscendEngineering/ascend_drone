@@ -19,7 +19,7 @@ int sensors::get_num_satellites(){
     return telemetry->gps_info().num_satellites;
 }
 float sensors::gps_strength(){
-    int fix_type = telemetry->gps_info().fix_type;
+    int fix_type = (int)telemetry->gps_info().fix_type;
     return (float) fix_type/max_fixtype;
 }
 float sensors::get_battery(){
@@ -34,63 +34,63 @@ std::string sensors::get_flightmode(){
     fm mode = telemetry->flight_mode();
 
     switch(mode){
-        case fm::UNKNOWN:{
+        case fm::Unknown:{
             retval = "UNKNOWN";
             break;
         }
-        case fm::READY:{
+        case fm::Ready:{
             retval = "READY";
             break;
         }
-        case fm::TAKEOFF:{
+        case fm::Takeoff:{
             retval = "TAKEOFF";
             break;
         }
-        case fm::HOLD:{
+        case fm::Hold:{
             retval = "HOLD";
             break;
         }
-        case fm::MISSION:{
+        case fm::Mission:{
             retval = "MISSION";
             break;
         }
-        case fm::RETURN_TO_LAUNCH:{
+        case fm::ReturnToLaunch:{
             retval = "RETURN_TO_LAUNCH";
             break;
         }
-        case fm::LAND:{
+        case fm::Land:{
             retval = "LAND";
             break;
         }
-        case fm::OFFBOARD:{
+        case fm::Offboard:{
             retval = "OFFBOARD";
             break;
         }
-        case fm::FOLLOW_ME:{
+        case fm::FollowMe:{
             retval = "FOLLOW_ME";
             break;
         }
-        case fm::MANUAL:{
+        case fm::Manual:{
             retval = "MANUAL";
             break;
         }
-        case fm::ALTCTL:{
+        case fm::Altctl:{
             retval = "ALTCTL";
             break;
         }
-        case fm::POSCTL:{
+        case fm::Posctl:{
             retval = "POSCTL";
             break;
         }
-        case fm::ACRO:{
+        case fm::Acro:{
             retval = "ACRO";
             break;
         }
-        case fm::STABILIZED:{
+        case fm::Stabilized:{
             retval = "STABILIZED";
             break;
         }
-        case fm::RATTITUDE:{
+        case fm::Rattitude:{
             retval = "RATTITUDE";
             break;
         }
@@ -104,34 +104,34 @@ std::string sensors::get_flightmode(){
 }
 
 bool sensors::is_gyro_calibrated(){
-    return telemetry->health().gyrometer_calibration_ok;
+    return telemetry->health().is_gyrometer_calibration_ok;
 }
 bool sensors::is_accelerometer_calibrated(){
-    return telemetry->health().accelerometer_calibration_ok;
+    return telemetry->health().is_accelerometer_calibration_ok;
 }
 bool sensors::is_magmeter_calibrated(){
-    return telemetry->health().magnetometer_calibration_ok;
+    return telemetry->health().is_magnetometer_calibration_ok;
 }
 bool sensors::is_level_calibrated(){
-    return telemetry->health().level_calibration_ok;
+    return telemetry->health().is_level_calibration_ok;
 }
 bool sensors::is_local_position_ok(){
-    return telemetry->health().local_position_ok;
+    return telemetry->health().is_local_position_ok;
 }
 bool sensors::is_global_position_ok(){
-    return telemetry->health().global_position_ok;
+    return telemetry->health().is_global_position_ok;
 }
 bool sensors::is_home_position_ok(){
-    return telemetry->health().home_position_ok;
+    return telemetry->health().is_home_position_ok;
 }
 float sensors::get_roll(){
-    return telemetry->attitude_euler_angle().roll_deg;
+    return telemetry->attitude_euler().roll_deg;
 }
 float sensors::get_pitch(){
-    return telemetry->attitude_euler_angle().pitch_deg;
+    return telemetry->attitude_euler().pitch_deg;
 }
 float sensors::get_yaw(){
-    return telemetry->attitude_euler_angle().yaw_deg;
+    return telemetry->attitude_euler().yaw_deg;
 }
 
 void sensors::print_all(){

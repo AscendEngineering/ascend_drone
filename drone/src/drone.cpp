@@ -133,7 +133,7 @@ bool drone::arm(){
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
-    if(arm_result != Action::Result::SUCCESS){
+    if(arm_result != Action::Result::Success){
         return false;
     }
     else{
@@ -152,7 +152,7 @@ bool drone::takeoff(int altitude /* = 3 */){
     //takeoff
     action->set_takeoff_altitude(altitude);
     const Action::Result takeoff_result = action->takeoff();
-    if (takeoff_result != Action::Result::SUCCESS) {
+    if (takeoff_result != Action::Result::Success) {
         return false;
     }
 
@@ -163,7 +163,7 @@ bool drone::land(){
     /* DOES NOT BLOCK */
 
     const Action::Result land_result = action->land();
-    if(land_result != Action::Result::SUCCESS){
+    if(land_result != Action::Result::Success){
         return false;
     }
     return true;
@@ -172,7 +172,7 @@ bool drone::land(){
 bool drone::kill(){
 
     const Action::Result land_result = action->kill();
-    if(land_result != Action::Result::SUCCESS){
+    if(land_result != Action::Result::Success){
         return false;
     }
     return true;
@@ -228,7 +228,8 @@ bool drone::start_mission(const waypoints& mission){
     }
     
     //upload the given mission
-    bool succ_upload = upload_waypoints(mission.get_waypoints());
+    mavsdk::Mission::MissionPlan mission_plan;
+    bool succ_upload = upload_waypoints(mission_plan);
 
     if(!succ_upload){
         return false;
@@ -246,15 +247,15 @@ bool drone::cancel_mission(){
 }
 
 bool drone::mission_finished(){
-    return m_mission->mission_finished();
+    return m_mission->is_mission_finished().second;
 }
 
 int drone::current_mission_item(){
-    return m_mission->current_mission_item();
+    return m_mission->mission_progress().current;
 }
 
 int drone::total_mission_items(){
-    return m_mission->total_mission_items();
+    return m_mission->mission_progress().total;
 }
 
 void drone::wait_for_mission_completion(){
@@ -268,9 +269,9 @@ void drone::wait_for_mission_completion(){
     float progress = 0;
 
     //subscribe to the updates 
-    m_mission->subscribe_progress([&](int current, int total) { 
-        progress = (float)(current/total); 
-        std::cout << progress << std::endl;    
+    m_mission->subscribe_mission_progress([&](mavsdk::Mission::MissionProgress progress) { 
+        int progress_percentage = (float)(progress.current/progress.total); 
+        std::cout << progress_percentage << std::endl;    
     });
 
     //wait until done
@@ -331,10 +332,10 @@ bool drone::mission_control(control_cmd cmd){
     }
     
     const Mission::Result result = future_result.get();
-    return (result==Mission::Result::SUCCESS);
+    return (result==Mission::Result::Success);
 }
 
-bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionItem>>& waypoints){
+bool drone::upload_waypoints(const mavsdk::Mission::MissionPlan& mission_plan){
 
     if(m_mission == nullptr){
         return false;
@@ -345,11 +346,11 @@ bool drone::upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionIt
     auto future_result = prom->get_future();
 
     //for each waypoint
-    m_mission->upload_mission_async(waypoints, 
-        [prom](Mission::Result result) { prom->set_value(result); });
+    m_mission->upload_mission_async(mission_plan, 
+        [prom](Mission::Result result) { prom->set_value(result);});
     const Mission::Result result = future_result.get();
     
-    if(result==Mission::Result::SUCCESS){
+    if(result==Mission::Result::Success){
         return true;
     }
     else{
@@ -373,13 +374,13 @@ void drone::test_motor(int motor){
 
     //send command
     std::string command = "pwm test -c " + motors + " -p 1000";
-    shell->shell_command({true,5000,command.c_str()});
+    //shell->send(command);
 
     //wait
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
     //kill motors
-    shell->shell_command({true,5000,"c"});
+    //shell->send(std::string("c"));
 
 }
 

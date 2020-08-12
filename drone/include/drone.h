@@ -12,7 +12,7 @@ This file has all the operations that the drone can perform
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
-#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
+//#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/shell/shell.h>
 #include "waypoints.h"
 #include <memory>
@@ -72,7 +72,7 @@ class drone{
             CANCEL
         };
         bool mission_control(control_cmd cmd);
-        bool upload_waypoints(const std::vector<std::shared_ptr<mavsdk::MissionItem>>& waypoints);
+        bool upload_waypoints(const mavsdk::Mission::MissionPlan& mission_plan);
         std::shared_ptr<Mission> m_mission;
         
         //vars
