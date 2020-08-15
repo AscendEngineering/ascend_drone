@@ -139,5 +139,6 @@ int main(int argc, char** argv){
         }
     }
     
+    ascendDrone.land();
     return 0;
 }

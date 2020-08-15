@@ -188,7 +188,7 @@ void drone::manual(){
         while(!correct_resp){
 
             std::string user_resp;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Magenet On \n3)Magnet Off \n4)Exit" << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Magenet On \n3)Magnet Off \n4)Autonomous Land \n5)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -198,7 +198,6 @@ void drone::manual(){
                 takeoff();
                 std::this_thread::sleep_for(std::chrono::seconds(10));
                 manual_control drone_control(system);
-                land();
             }
             else if(user_resp=="2"){
                 package_control::get_instance().pickup();
@@ -207,10 +206,12 @@ void drone::manual(){
                 package_control::get_instance().release();
             }
             else if(user_resp=="4"){
+                
+            }
+            else if(user_resp=="5"){
+                land();
                 return;
             }
-            
-            
         }
 
         //output current position
@@ -361,8 +362,8 @@ bool drone::upload_waypoints(const mavsdk::Mission::MissionPlan& mission_plan){
 
 void drone::test_motor(int motor){
 
+    //setup
     std::shared_ptr<mavsdk::Shell> shell = std::make_shared<Shell>(*system);
-
     shell->subscribe_receive([](const std::string output) {});
 
     //spin all motors
@@ -377,11 +378,7 @@ void drone::test_motor(int motor){
     //send command
     std::string command = "pwm test -c " + motors + " -p 1000";
     mavsdk::Shell::Result result = shell->send(command);
-
-    //wait
     std::this_thread::sleep_for(std::chrono::seconds(5));
-
-    //kill motors
     result = shell->send("c");
 }
 
@@ -389,8 +386,6 @@ void drone::load_config_vars(){
 
     //drone name
     drone_name = config_handler::instance()["drone_name"];
-
-    //atc address
     if(std::getenv("LOCAL_NETWORK") == nullptr){
         atc_ip = config_handler::instance()["atc_ip"];
     }
