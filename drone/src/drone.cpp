@@ -36,7 +36,7 @@ drone::drone(bool in_simulation): context(1),
     connect_px4();
 
     //register with ATC
-    register_with_atc();
+    //register_with_atc();
 
 }
 
@@ -373,14 +373,14 @@ void drone::test_motor(int motor){
     }
 
     //send command
-    std::string command = "pwm test -c " + motors + " -p 1000";
-    //shell->send(command);
+    std::string command = "pwm test -c " + motors + " -p 1000 \n";
+    mavsdk::Shell::Result result = shell->send(command);
 
     //wait
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
     //kill motors
-    //shell->send(std::string("c"));
+    result = shell->send(std::string("c \n"));
 
 }
 
