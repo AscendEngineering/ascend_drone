@@ -363,6 +363,8 @@ void drone::test_motor(int motor){
 
     std::shared_ptr<mavsdk::Shell> shell = std::make_shared<Shell>(*system);
 
+    shell->subscribe_receive([](const std::string output) {});
+
     //spin all motors
     std::string motors = "";
     if(motor == -1){
@@ -373,15 +375,14 @@ void drone::test_motor(int motor){
     }
 
     //send command
-    std::string command = "pwm test -c " + motors + " -p 1000 \n";
+    std::string command = "pwm test -c " + motors + " -p 1000";
     mavsdk::Shell::Result result = shell->send(command);
 
     //wait
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
     //kill motors
-    result = shell->send(std::string("c \n"));
-
+    result = shell->send("c");
 }
 
 void drone::load_config_vars(){

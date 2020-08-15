@@ -19,7 +19,6 @@ else:
 
 #drone files
 drone_files = ['drone.cpp',
-    'video_transmission.cpp',
     'manual_control.cpp',
     'waypoints.cpp',
     'drone_msg.cpp',
