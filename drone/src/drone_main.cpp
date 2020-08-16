@@ -10,6 +10,7 @@
 #include <thread>
 #include <unistd.h>
 #include "waypoints.h"
+#include "utilities.h"
 
 
 namespace {
@@ -80,6 +81,9 @@ void exiting() {
 
 
 int main(int argc, char** argv){
+
+    std::cout << "my ip: " << utilities::my_public_ip() << std::endl;
+    exit(1);
 
     //Args
 /*---------------------------------------------------------------*/

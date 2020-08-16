@@ -17,9 +17,7 @@ This file has all the operations that the drone can perform
 #include "waypoints.h"
 #include <memory>
 #include "sensors.h"
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-
+#include <thread>
 
 
 class drone{
@@ -45,6 +43,7 @@ class drone{
         bool land();  /* DOES NOT BLOCK */
         bool kill();
         void manual();
+        void control_from_remote();
         void test_motor(int motor = -1);
 
         /********* Waypoint Methods *********/
