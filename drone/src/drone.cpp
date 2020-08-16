@@ -236,12 +236,13 @@ void drone::control_from_remote(){
     }
 
     //send landing request
-    send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
+    //send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
 
     //control
     bool is_landing = true;
     while(is_landing){
         std::vector<std::string> messages = drone::collect_messages();
+        std::cout << "received " << messages.size() << " messages" << std::endl;
         for(auto msg: messages){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
 
