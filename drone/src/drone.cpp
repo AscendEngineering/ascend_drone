@@ -74,20 +74,21 @@ std::vector<std::string> drone::collect_messages(){
 
         //if messages, collect
         if(comm_items[0].revents & ZMQ_POLLIN){
-            std::string sender;
-            std::string operation;
+            // std::string sender;
+            // std::string operation;
             std::string data;
 
-            comm::get_msg_header(recv_socket,sender,operation);
+
+            // comm::get_msg_header(recv_socket,sender,operation);
             
-            //acknowledgement TODO
-            if(operation=="A"){
-                std::cout<<"ATC Acknowledged"<<std::endl;
-                continue;
-            }
+            // //acknowledgement TODO
+            // if(operation=="A"){
+            //     std::cout<<"ATC Acknowledged"<<std::endl;
+            //     continue;
+            // }
 
             data = comm::get_msg_data(recv_socket);
-            send_ack();
+            //send_ack();
             messages.push_back(data);
         }
         else{
@@ -242,7 +243,6 @@ void drone::control_from_remote(){
     bool is_landing = true;
     while(is_landing){
         std::vector<std::string> messages = drone::collect_messages();
-        std::cout << "received " << messages.size() << " messages" << std::endl;
         for(auto msg: messages){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
 
