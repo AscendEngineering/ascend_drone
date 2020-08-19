@@ -82,6 +82,10 @@ void exiting() {
 
 int main(int argc, char** argv){
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a1e31ffb702840edafde364bf0ef6926262f1422
     //Args
 /*---------------------------------------------------------------*/
     cxxopts::Options options("Drone", "Runs on onboard computer to control flight controller");
