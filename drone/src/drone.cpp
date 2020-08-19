@@ -190,7 +190,7 @@ void drone::manual(){
         while(!correct_resp){
 
             std::string user_resp;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Magenet On \n3)Magnet Off \n4)Autonomous Land \n5)Exit" << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Autonomous Land \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -202,15 +202,21 @@ void drone::manual(){
                 manual_control drone_control(system);
             }
             else if(user_resp=="2"){
-                package_control::get_instance().pickup();
+                manual_control drone_control(system);
             }
             else if(user_resp=="3"){
-                package_control::get_instance().release();
+                package_control::get_instance().pickup();
             }
             else if(user_resp=="4"){
-                control_from_remote();
+                package_control::get_instance().release();
             }
             else if(user_resp=="5"){
+               	land();
+            }
+            else if(user_resp=="6"){
+                control_from_remote();
+            }
+            else if(user_resp=="7"){
                 land();
                 return;
             }
@@ -236,11 +242,22 @@ void drone::control_from_remote(){
     }
 
     //send landing request
-    send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
+    //send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
+
+    //enable killswitch
+    utilities::line_buffer(false);
 
     //control
     bool is_landing = true;
     while(is_landing){
+
+        //check for killswitch
+        std::string cmd_line = utilities::get_term_input();
+        if(cmd_line.find('x') != std::string::npos){
+            break;
+        }
+
+        //process messages
         std::vector<std::string> messages = drone::collect_messages();
         for(auto msg: messages){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
@@ -266,6 +283,9 @@ void drone::control_from_remote(){
     //stop offboard
     offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
     offboard_result = offboard->stop();
+
+    //stop killswitch
+    utilities::line_buffer(true);
 
     //error check
     if(offboard_result != Offboard::Result::Success){
