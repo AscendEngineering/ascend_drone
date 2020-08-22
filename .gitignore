@@ -9,3 +9,4 @@ drone/drone
 drone/config.txt
 *.swp
 config.txt
+drone_settings.txt

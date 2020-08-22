@@ -38,7 +38,7 @@ drone::drone(bool in_simulation): context(1),
     connect_px4();
 
     //register with ATC
-    //register_with_atc();
+    register_with_atc();
 
 }
 
@@ -108,6 +108,8 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
+
+        //if battery is too low, 
 
         //send to atc
         send_heartbeat(current_pos.longitude_deg,
@@ -191,6 +193,7 @@ void drone::manual(){
         while(!correct_resp){
 
             std::string user_resp;
+	    std::cout << "Battery: "<< drone_sensors->get_battery() << std::endl;
             std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Autonomous Land \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
@@ -200,7 +203,6 @@ void drone::manual(){
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 takeoff();
                 std::this_thread::sleep_for(std::chrono::seconds(10));
-                manual_control drone_control(system);
             }
             else if(user_resp=="2"){
                 manual_control drone_control(system);
@@ -244,12 +246,9 @@ void drone::control_from_remote(){
 
     //send landing request
     //send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
-<<<<<<< HEAD
 
     //enable killswitch
     utilities::line_buffer(false);
-=======
->>>>>>> a1e31ffb702840edafde364bf0ef6926262f1422
 
     //control
     bool is_landing = true;
