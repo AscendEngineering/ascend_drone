@@ -251,8 +251,8 @@ void drone::control_from_remote(){
     utilities::line_buffer(false);
 
     //control
-    bool is_landing = true;
-    while(is_landing){
+    bool remote_controlling = true;
+    while(remote_controlling){
 
         //check for killswitch
         std::string cmd_line = utilities::get_term_input();
@@ -266,7 +266,7 @@ void drone::control_from_remote(){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
 
             if(cmd_msg.has_stop_remote()){
-                is_landing = false;
+                remote_controlling = false;
                 break;
             }
             else if(cmd_msg.has_offset()){
@@ -294,6 +294,7 @@ void drone::control_from_remote(){
     if(offboard_result != Offboard::Result::Success){
         std::cerr << "Error stopping offboard control" << std::endl;
     }
+    land();
 }
 
 
