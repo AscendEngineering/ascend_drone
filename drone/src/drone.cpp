@@ -13,6 +13,8 @@
 #include <chrono>  
 #include <memory>
 #include <future>
+#include "remote_control.h"
+#include <mavsdk/plugins/offboard/offboard.h>
 
 using namespace mavsdk;
 
@@ -36,7 +38,7 @@ drone::drone(bool in_simulation): context(1),
     connect_px4();
 
     //register with ATC
-    //register_with_atc();
+    register_with_atc();
 
 }
 
@@ -72,20 +74,21 @@ std::vector<std::string> drone::collect_messages(){
 
         //if messages, collect
         if(comm_items[0].revents & ZMQ_POLLIN){
-            std::string sender;
-            std::string operation;
+            // std::string sender;
+            // std::string operation;
             std::string data;
 
-            comm::get_msg_header(recv_socket,sender,operation);
+
+            // comm::get_msg_header(recv_socket,sender,operation);
             
-            //acknowledgement TODO
-            if(operation=="A"){
-                std::cout<<"ATC Acknowledged"<<std::endl;
-                continue;
-            }
+            // //acknowledgement TODO
+            // if(operation=="A"){
+            //     std::cout<<"ATC Acknowledged"<<std::endl;
+            //     continue;
+            // }
 
             data = comm::get_msg_data(recv_socket);
-            send_ack();
+            //send_ack();
             messages.push_back(data);
         }
         else{
@@ -105,6 +108,8 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
+
+        //if battery is too low, 
 
         //send to atc
         send_heartbeat(current_pos.longitude_deg,
@@ -188,7 +193,8 @@ void drone::manual(){
         while(!correct_resp){
 
             std::string user_resp;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Magenet On \n3)Magnet Off \n4)Autonomous Land \n5)Exit" << std::endl;
+	    std::cout << "Battery: "<< drone_sensors->get_battery() << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Autonomous Land \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -197,18 +203,23 @@ void drone::manual(){
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 takeoff();
                 std::this_thread::sleep_for(std::chrono::seconds(10));
-                manual_control drone_control(system);
             }
             else if(user_resp=="2"){
-                package_control::get_instance().pickup();
+                manual_control drone_control(system);
             }
             else if(user_resp=="3"){
-                package_control::get_instance().release();
+                package_control::get_instance().pickup();
             }
             else if(user_resp=="4"){
-                
+                package_control::get_instance().release();
             }
             else if(user_resp=="5"){
+               	land();
+            }
+            else if(user_resp=="6"){
+                control_from_remote();
+            }
+            else if(user_resp=="7"){
                 land();
                 return;
             }
@@ -219,6 +230,95 @@ void drone::manual(){
         std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
         std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
     }
+}
+void drone::control_from_remote(){
+
+    //enter manual mode
+    auto offboard = std::make_shared<Offboard>(*system);
+    offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+    Offboard::Result offboard_result = offboard->start();
+
+    //error check
+    if(offboard_result != Offboard::Result::Success){
+        std::cerr << "Error gaining offboard control" << std::endl;
+        return;
+    }
+
+    //send landing request
+    //send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
+
+    //enable killswitch
+    utilities::line_buffer(false);
+
+    //control
+    bool remote_controlling = true;
+    while(remote_controlling){
+
+        //check for killswitch
+        std::string cmd_line = utilities::get_term_input();
+        if(cmd_line.find('x') != std::string::npos){
+            break;
+        }
+
+        //process messages
+        std::vector<std::string> messages = drone::collect_messages();
+        for(auto msg: messages){
+            ascend::msg cmd_msg = msg_generator::deserialize(msg);
+
+            if(cmd_msg.has_stop_remote()){
+                remote_controlling = false;
+                break;
+            }
+            else if(cmd_msg.has_offset()){
+                ascend::move_offset landing_cmd =  cmd_msg.offset();
+
+                float x = landing_cmd.x();
+                float y = landing_cmd.y();
+                float z = landing_cmd.z();
+                float rate = landing_cmd.rate();
+
+                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, 0});
+            }
+        }
+    }
+
+    //stop offboard
+    offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+    offboard_result = offboard->stop();
+
+    //stop killswitch
+    utilities::line_buffer(true);
+
+    //error check
+    if(offboard_result != Offboard::Result::Success){
+        std::cerr << "Error stopping offboard control" << std::endl;
+    }
+    land();
+}
+
+
+
+void drone::test_motor(int motor){
+
+    //setup
+    std::shared_ptr<mavsdk::Shell> shell = std::make_shared<Shell>(*system);
+    shell->subscribe_receive([](const std::string output) {});
+
+    //spin all motors
+    std::string motors = "";
+    if(motor == -1){
+        motors = "123456";
+    }
+    else{
+        motors = std::to_string(motor);
+    }
+
+    //send command
+    std::string command = "pwm test -c " + motors + " -p 1000";
+    mavsdk::Shell::Result result = shell->send(command);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    result = shell->send("c");
 }
 
 bool drone::start_mission(const waypoints& mission){
@@ -357,29 +457,6 @@ bool drone::upload_waypoints(const mavsdk::Mission::MissionPlan& mission_plan){
     else{
         return false;
     }
-}
-
-
-void drone::test_motor(int motor){
-
-    //setup
-    std::shared_ptr<mavsdk::Shell> shell = std::make_shared<Shell>(*system);
-    shell->subscribe_receive([](const std::string output) {});
-
-    //spin all motors
-    std::string motors = "";
-    if(motor == -1){
-        motors = "123456";
-    }
-    else{
-        motors = std::to_string(motor);
-    }
-
-    //send command
-    std::string command = "pwm test -c " + motors + " -p 1000";
-    mavsdk::Shell::Result result = shell->send(command);
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    result = shell->send("c");
 }
 
 void drone::load_config_vars(){

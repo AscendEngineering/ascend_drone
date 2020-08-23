@@ -10,6 +10,7 @@
 #include <thread>
 #include <unistd.h>
 #include "waypoints.h"
+#include "utilities.h"
 
 
 namespace {
