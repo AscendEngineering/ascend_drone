@@ -13,7 +13,6 @@
 #include <chrono>  
 #include <memory>
 #include <future>
-#include "remote_control.h"
 #include <mavsdk/plugins/offboard/offboard.h>
 
 using namespace mavsdk;
