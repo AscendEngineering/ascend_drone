@@ -14,6 +14,7 @@
 #include <memory>
 #include <future>
 #include <mavsdk/plugins/offboard/offboard.h>
+#include "package_control.h"
 
 using namespace mavsdk;
 
@@ -278,6 +279,40 @@ void drone::control_from_remote(){
 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, 0});
+            }
+            else if(cmd_msg.has_action_cmd()){
+                //stop offboard
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                offboard_result = offboard->stop();
+                utilities::line_buffer(true);
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error stopping offboard control" << std::endl;
+                }
+
+                //issue command
+                ascend::action_cmd_enum cmd = cmd_msg.action_cmd().cmd();
+                if(cmd==ascend::TAKEOFF){
+                    takeoff();
+                }
+                else if(cmd==ascend::LAND){
+                    land();
+                }
+                else if(cmd==ascend::PICKUP_PACKAGE){
+                    package_control::get_instance().pickup();
+                }
+                else if(cmd==ascend::DROPOFF_PACKAGE){
+                    package_control::get_instance().release();
+                }
+
+                //retart offboard
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                Offboard::Result offboard_result = offboard->start();
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error gaining offboard control" << std::endl;
+                    return;
+                }
+                utilities::line_buffer(false);
+
             }
         }
     }
