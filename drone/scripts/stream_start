@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [[ $# -ne 1 ]]
-    then echo MUST SUPPLY ADDRESS TO SEND TO
-    exit 1
-fi
-
-
-ffmpeg -thread_queue_size 4 -i /dev/video0 -preset ultrafast -vcodec libx264 -tune zerolatency -an -f rtp rtp://$1 -sdp_file streaming_metadata.sdp
