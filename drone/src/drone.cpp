@@ -14,6 +14,7 @@
 #include <memory>
 #include <future>
 #include <mavsdk/plugins/offboard/offboard.h>
+#include <mavsdk/plugins/calibration/calibration.h>
 #include "package_control.h"
 
 using namespace mavsdk;
@@ -355,6 +356,87 @@ void drone::test_motor(int motor){
     result = shell->send("c");
 }
 
+void drone::calibrate(){
+
+    bool calibration_complete = false;
+
+    //define callback function
+    std::function<void(Calibration::Result, Calibration::ProgressData)> calibration_info = [&](Calibration::Result res, Calibration::ProgressData prog){
+        std::cout << "Status: ";
+        switch(res){
+            case Calibration::Result::Unknown:
+                std::cout << "Unknown";
+                break;
+            case Calibration::Result::Success:
+                std::cout << "Success";
+                calibration_complete = true;
+                break;
+            case Calibration::Result::Next:
+                std::cout << "Next";
+                break;
+            case Calibration::Result::Failed:
+                std::cout << "Failed";
+                break;
+            case Calibration::Result::NoSystem:
+                std::cout << "NoSystem";
+                break;
+            case Calibration::Result::ConnectionError:
+                std::cout << "ConnectionError";
+                break;
+            case Calibration::Result::Busy:
+                std::cout << "Busy";
+                break;
+            case Calibration::Result::CommandDenied:
+                std::cout << "CommandDenied";
+                break;
+            case Calibration::Result::Timeout:
+                std::cout << "Timeout";
+                break;
+            case Calibration::Result::Cancelled:
+                std::cout << "Cancelled";
+                break;
+            case Calibration::Result::FailedArmed:
+                std::cout << "FailedArmed";
+                break;
+        }
+        std::cout<< " -> ";
+        
+        if(prog.has_progress){
+            std::cout << prog.progress * 100 << "% ";
+        }
+        if(prog.has_status_text){
+            std::cout << prog.status_text;
+        }
+        std::cout << std::endl;
+    };
+
+    /* CALIBRATION BEGIN */
+    std::shared_ptr<Calibration> calibration_engine = std::make_shared<Calibration>(*system);
+
+    //gyro calibration
+    calibration_engine->calibrate_gyro_async(calibration_info);
+    while(!calibration_complete){}
+    calibration_complete = false;
+
+    //level_horizon calibration
+    calibration_engine->calibrate_level_horizon_async(calibration_info);
+    while(!calibration_complete){}
+    calibration_complete = false;
+
+    //magnetometer calibration
+    calibration_engine->calibrate_magnetometer_async(calibration_info);
+    while(!calibration_complete){}
+    calibration_complete = false;
+
+    //accelerometer calibration
+    calibration_engine->calibrate_accelerometer_async(calibration_info);
+    while(!calibration_complete){}
+    calibration_complete = false;
+
+    /* CALIBRATION END */
+
+}
+
 bool drone::start_mission(const waypoints& mission){
 
     //form waypoint if null
@@ -430,9 +512,9 @@ bool drone::connect_px4(){
 
     //assigning the system
     system = &px4.system();
-    telemetry = std::make_shared<Telemetry>(*system);
-    action = std::make_shared<Action>(*system);
-    drone_sensors = std::make_shared<sensors>(telemetry);
+    // telemetry = std::make_shared<Telemetry>(*system);
+    // action = std::make_shared<Action>(*system);
+    // drone_sensors = std::make_shared<sensors>(telemetry);
 
     return true;
 }

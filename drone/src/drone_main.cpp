@@ -89,6 +89,7 @@ int main(int argc, char** argv){
         ("t,test","test spin motors",cxxopts::value<bool>()->default_value("false"))
         ("s,simulation","connect to computer simulation",cxxopts::value<bool>()->default_value("false"))
         ("m,manual","manual flight mode",cxxopts::value<bool>()->default_value("false"))
+        ("c,calibrate","enter drone calibration",cxxopts::value<bool>()->default_value("false"))
         ("h,help", "Print usage");
     auto cmd_line_args = options.parse(argc, argv);
 
@@ -97,6 +98,7 @@ int main(int argc, char** argv){
         exit(0);
     }
 
+    bool calibrate = cmd_line_args["calibrate"].as<bool>();
     bool test_motors = cmd_line_args["test"].as<bool>();
     bool run_simulation = cmd_line_args["simulation"].as<bool>();
     bool manual_mode = cmd_line_args["manual"].as<bool>();
@@ -107,13 +109,22 @@ int main(int argc, char** argv){
     std::chrono::time_point<std::chrono::system_clock> last_heartbeat = std::chrono::system_clock::now();
     drone ascendDrone(run_simulation);
 
+    //calibrate
+    if(calibrate){
+        std::cout << "Calibrating" << std::endl;
+        ascendDrone.calibrate();
+        std::cout << "Calibration Done" << std::endl;
+        return 0;
+    }
+
+
     //test motors
     if(test_motors){
         std::cout << "Testing Motor" << std::endl;
         ascendDrone.test_motor();
         return 0;
     }
-    
+
     if(manual_mode){
         ascendDrone.manual();
     }
