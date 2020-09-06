@@ -18,13 +18,6 @@ namespace msg_generator {
                                       int lat, 
                                       int alt, 
                                       int bat_percentage);
-        std::string generate_emergency(const std::string& drone_name);
-        std::string generate_land_request(const std::string& drone_name, 
-                                          double desired_lat, 
-                                          double desired_long,
-                                          double current_alt);
-        std::string generate_status_change(const std::string& drone_name, 
-                                          drone_status status);
 
         std::string serialize(const ascend::msg& to_send);
         ascend::msg deserialize(const std::string& recv);

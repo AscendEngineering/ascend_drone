@@ -3,8 +3,8 @@
 #include <mavsdk/plugins/mission/mission.h>
 
 
-void waypoints::add_waypoints(::ascend::waypointList_msg waypoint_list){
-}
+// void waypoints::add_waypoints(::ascend::waypointList_msg waypoint_list){
+// }
 
 void waypoints::add_waypoints(const std::vector<std::shared_ptr<mavsdk::Mission::MissionItem> >& waypoints){
     m_waypoints.insert(m_waypoints.end(),waypoints.begin(),waypoints.end());

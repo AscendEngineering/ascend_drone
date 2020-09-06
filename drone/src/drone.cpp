@@ -101,8 +101,8 @@ std::vector<std::string> drone::collect_messages(){
 bool drone::register_with_atc(){
 
     //craft proto message to register
-    std::string msg = msg_generator::generate_status_change(drone_name,drone_status::AVAILABLE);
-    return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+    return true;
+
 }
 
 void drone::send_heartbeat(){
@@ -279,6 +279,7 @@ void drone::control_from_remote(){
                 float rate = landing_cmd.rate();
 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
+                std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, 0});
             }
             else if(cmd_msg.has_action_cmd()){
@@ -362,48 +363,6 @@ void drone::calibrate(){
 
     //define callback function
     std::function<void(Calibration::Result, Calibration::ProgressData)> calibration_info = [&](Calibration::Result res, Calibration::ProgressData prog){
-        std::cout << "Status: ";
-        switch(res){
-            case Calibration::Result::Unknown:
-                std::cout << "Unknown";
-                break;
-            case Calibration::Result::Success:
-                std::cout << "Success";
-                calibration_complete = true;
-                break;
-            case Calibration::Result::Next:
-                std::cout << "Next";
-                break;
-            case Calibration::Result::Failed:
-                std::cout << "Failed";
-                break;
-            case Calibration::Result::NoSystem:
-                std::cout << "NoSystem";
-                break;
-            case Calibration::Result::ConnectionError:
-                std::cout << "ConnectionError";
-                break;
-            case Calibration::Result::Busy:
-                std::cout << "Busy";
-                break;
-            case Calibration::Result::CommandDenied:
-                std::cout << "CommandDenied";
-                break;
-            case Calibration::Result::Timeout:
-                std::cout << "Timeout";
-                break;
-            case Calibration::Result::Cancelled:
-                std::cout << "Cancelled";
-                break;
-            case Calibration::Result::FailedArmed:
-                std::cout << "FailedArmed";
-                break;
-        }
-        std::cout<< " -> ";
-        
-        if(prog.has_progress){
-            std::cout << prog.progress * 100 << "% ";
-        }
         if(prog.has_status_text){
             std::cout << prog.status_text;
         }
@@ -414,24 +373,40 @@ void drone::calibrate(){
     std::shared_ptr<Calibration> calibration_engine = std::make_shared<Calibration>(*system);
 
     //gyro calibration
+    std::cout << "Calibrating Gyro..." << std::endl;
     calibration_engine->calibrate_gyro_async(calibration_info);
     while(!calibration_complete){}
     calibration_complete = false;
+    std::cout << "...Gyro Calibrated" << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     //level_horizon calibration
+    std::cout << "Calibrating level_horizon..." << std::endl;
     calibration_engine->calibrate_level_horizon_async(calibration_info);
     while(!calibration_complete){}
     calibration_complete = false;
+    std::cout << "...level_horizon Calibrated" << std::endl;
 
-    //magnetometer calibration
-    calibration_engine->calibrate_magnetometer_async(calibration_info);
-    while(!calibration_complete){}
-    calibration_complete = false;
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     //accelerometer calibration
+    std::cout << "Calibrating accelerometer..." << std::endl;
     calibration_engine->calibrate_accelerometer_async(calibration_info);
     while(!calibration_complete){}
     calibration_complete = false;
+    std::cout << "...accelerometer calibrated" << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    //magnetometer calibration
+    std::cout << "Calibrating magnetometer..." << std::endl;
+    calibration_engine->calibrate_magnetometer_async(calibration_info);
+    while(!calibration_complete){}
+    calibration_complete = false;
+    std::cout << "...magnetometer calibrated" << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     /* CALIBRATION END */
 
@@ -512,9 +487,9 @@ bool drone::connect_px4(){
 
     //assigning the system
     system = &px4.system();
-    // telemetry = std::make_shared<Telemetry>(*system);
-    // action = std::make_shared<Action>(*system);
-    // drone_sensors = std::make_shared<sensors>(telemetry);
+    telemetry = std::make_shared<Telemetry>(*system);
+    action = std::make_shared<Action>(*system);
+    drone_sensors = std::make_shared<sensors>(telemetry);
 
     return true;
 }

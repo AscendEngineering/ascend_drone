@@ -12,66 +12,13 @@
 #include "waypoints.h"
 #include "utilities.h"
 
+#define MESSAGE_DEBUGGING 0
 
 namespace {
 
     void process_request(const ascend::msg& recvd_msg, drone& ascendDrone){
 
-        //process request
-        if(recvd_msg.has_takeoff_request()){
-
-            //arm
-            std::cout << "Arming..." << std::endl;
-            bool armed = ascendDrone.arm();
-            if(armed){std::cout << "...Armed" << std::endl;}
-            else{std::cerr << "ARMING FAILURE" << std::endl;exit(1);}
-            
-            //takeoff
-            std::cout << "Taking off..." << std::endl;
-            bool tookoff = ascendDrone.takeoff();
-            if(tookoff){std::cout << "...Took off" << std::endl;}
-            else{std::cerr << "TAFEOFF FAILURE" << std::endl;exit(1);}
-
-            std::this_thread::sleep_for (std::chrono::seconds(10));
-        }
-        else if(recvd_msg.has_landing_request()){
-            
-            //land
-            std::cout << "Landing initiated..." << std::endl;
-            bool landing = false;
-            while(!landing){
-                landing = ascendDrone.land();
-                if(landing){
-                    std::cout << "...Landing" << std::endl;
-                }
-                else{
-                    std::cerr << "LANDING FAILURE...RETRY" << std::endl;
-                    std::this_thread::sleep_for (std::chrono::seconds(5));
-                }
-            }
-        }
-        else if(recvd_msg.has_waypoints()){
-            
-            //waypoints
-            std::cout << "Entering Waypoint Mode..." << std::endl;
-            waypoints new_mission;
-            new_mission.add_waypoint(-87.63976080858527,41.90018908454226,9.999999999999998,5);
-            new_mission.add_waypoint(-87.639227,41.899937,9.999999999999998,5);
-            
-            //start mission
-            bool succ_start = ascendDrone.start_mission(new_mission);
-            if(succ_start){
-                ascendDrone.wait_for_mission_completion();
-            }
-            std::cout << "...Exited Waypoint Mode" << std::endl;
-        }
-        else if(recvd_msg.has_manual_control()){
-
-            //manual control
-            std::cout << "Entering Manual Mode..." << std::endl;
-            ascendDrone.manual();
-            std::cout << "...Exiting Manual Mode" << std::endl;
-        }
+        //TODO
     }    
 }
 
