@@ -20,6 +20,7 @@ sudo apt-get install -y libtool-bin=2.4.6-9
 sudo apt-get install -y xmlto
 sudo apt-get install -y libncurses5-dev libncursesw5-dev
 sudo apt-get install -y cmake build-essential colordiff git doxygen
+sudo apt-get install -y libcurl4-openssl-dev
 
 #python stuff
 pip3 install opencv-python
@@ -33,7 +34,12 @@ sudo apt-get install -y libhdf5-serial-dev
 
 #misc
 sudo apt-get install -y htop ripgrep openssh-server ffmpeg libboost-all-dev
- 
+
+#sudmodules
+#cd ../
+#git submodule update --init --recursive
+#cd third_party 
+
 #tunneling for mobile connection
 #mkdir -p remotit
 #cd remoteit
