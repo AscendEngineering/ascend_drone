@@ -98,7 +98,7 @@ class drone{
 
         //misc
         void load_config_vars();
-        bool send_heartbeat(int lng, int lat, int alt, int bat_percentage);
+        bool send_heartbeat(double lng, double lat, double alt, double bat_percentage);
 
         
 

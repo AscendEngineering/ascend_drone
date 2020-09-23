@@ -2,10 +2,10 @@
 
 
 std::string msg_generator::generate_heartbeat(const std::string& drone_name, 
-                                            int lng, 
-                                            int lat, 
-                                            int alt, 
-                                            int bat_percentage){
+                                            double lng, 
+                                            double lat, 
+                                            double alt, 
+                                            double bat_percentage){
     ascend::msg msg;
     msg.set_name(drone_name);
 
