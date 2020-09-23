@@ -276,11 +276,12 @@ void drone::control_from_remote(){
                 float x = landing_cmd.x();
                 float y = landing_cmd.y();
                 float z = landing_cmd.z();
+                float yaw = landing_cmd.yaw(); //yaw might be optional on Zachs end
                 float rate = landing_cmd.rate();
 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, 0});
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*rate});
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
