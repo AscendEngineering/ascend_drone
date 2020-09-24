@@ -276,8 +276,12 @@ void drone::control_from_remote(){
                 float x = landing_cmd.x();
                 float y = landing_cmd.y();
                 float z = landing_cmd.z();
-                float yaw = landing_cmd.yaw(); //yaw might be optional on Zachs end
+                float yaw = 0;
                 float rate = landing_cmd.rate();
+
+                if(landing_cmd.has_yaw()){
+                    yaw = landing_cmd.yaw();
+                }
 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
