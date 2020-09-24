@@ -282,11 +282,7 @@ void drone::control_from_remote(){
                 if(landing_cmd.has_yaw()){
                     yaw = landing_cmd.yaw();
                 }
-<<<<<<< HEAD
-
-=======
                 
->>>>>>> 07962575d48b2c43097ea1f47276250d9bcf1e3b
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*rate});
