@@ -113,9 +113,9 @@ void drone::send_heartbeat(){
         //if battery is too low, 
 
         //send to atc
-        send_heartbeat(current_pos.longitude_deg,
+        bool sent = send_heartbeat(current_pos.longitude_deg,
             current_pos.latitude_deg,
-            current_pos.absolute_altitude_m, 
+            current_pos.relative_altitude_m, 
             current_battery);
 
 }
@@ -245,11 +245,11 @@ void drone::control_from_remote(){
         return;
     }
 
-    //send landing request
-    //send_to_atc(msg_generator::generate_land_request(drone_name,0,0,0));
 
     //enable killswitch
     utilities::line_buffer(false);
+
+    auto last_heartbeat = std::chrono::system_clock::now();
 
     //control
     bool remote_controlling = true;
@@ -282,7 +282,11 @@ void drone::control_from_remote(){
                 if(landing_cmd.has_yaw()){
                     yaw = landing_cmd.yaw();
                 }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 07962575d48b2c43097ea1f47276250d9bcf1e3b
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*rate});
@@ -322,6 +326,14 @@ void drone::control_from_remote(){
 
             }
         }
+
+        //heartbeat
+        auto current_time = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_time = current_time-last_heartbeat;
+        if(elapsed_time.count() > 0.5){
+            send_heartbeat();
+            last_heartbeat = std::chrono::system_clock::now();
+        }
     }
 
     //stop offboard
@@ -349,7 +361,7 @@ void drone::test_motor(int motor){
     //spin all motors
     std::string motors = "";
     if(motor == -1){
-        motors = "123456";
+        motors = "12345678";
     }
     else{
         motors = std::to_string(motor);
@@ -569,7 +581,7 @@ void drone::load_config_vars(){
 
 }
 
-bool drone::send_heartbeat(int lng, int lat, int alt, int bat_percentage){
+bool drone::send_heartbeat(double lng, double lat, double alt, double bat_percentage){
     std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
 }

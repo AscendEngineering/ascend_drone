@@ -14,10 +14,10 @@ enum drone_status {
 namespace msg_generator {
 
         std::string generate_heartbeat(const std::string& name, 
-                                      int lng,
-                                      int lat, 
-                                      int alt, 
-                                      int bat_percentage);
+                                      double lng,
+                                      double lat, 
+                                      double alt, 
+                                      double bat_percentage);
 
         std::string serialize(const ascend::msg& to_send);
         ascend::msg deserialize(const std::string& recv);
