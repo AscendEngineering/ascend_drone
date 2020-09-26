@@ -11,3 +11,4 @@ drone/config.txt
 *.swp
 config.txt
 drone_settings.txt
+drone/scripts/remote_control/__pycache__
