@@ -19,6 +19,7 @@ This file has all the operations that the drone can perform
 #include "sensors.h"
 #include <thread>
 
+#define YAW_FACTOR 25
 
 class drone{
 

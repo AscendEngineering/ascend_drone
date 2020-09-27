@@ -121,7 +121,6 @@ void drone::send_heartbeat(){
 }
 
 bool drone::unregister_with_atc(){
-
     return true;
 }
 
@@ -203,7 +202,6 @@ void drone::manual(){
                 arm();
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 takeoff();
-                std::this_thread::sleep_for(std::chrono::seconds(10));
             }
             else if(user_resp=="2"){
                 manual_control drone_control(system);
@@ -283,9 +281,9 @@ void drone::control_from_remote(){
                     yaw = landing_cmd.yaw();
                 }
                 
-                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
+                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*rate});
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*YAW_FACTOR*rate});
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
