@@ -22,14 +22,13 @@ c=IN IP4 {}
 t=0 0
 a=tool:libavformat 58.20.100
 m=video 5555 RTP/AVP 96
-b=AS:900
 a=rtpmap:96 H264/90000
 a=fmtp:96 packetization-mode=1
 '''
 
 #video_transmission_template = 'ffmpeg -thread_queue_size 4 -i /dev/video0 -preset ultrafast -vcodec libx264 -tune zerolatency -an -f rtp rtp://{}:5555 -sdp_file saved_sdp_file.sdp'
 #video_transmission_template = 'ffmpeg -re -i /dev/video0 -c:v libx264 -b:v 1600k -preset ultrafast -tune zerolatency -b 900k -c:a libfdk_aac -b:a 128k -s 1920x1080 -x264opts keyint=50 -g 25 -pix_fmt yuv420p -f rtp rtp://{}:5555 -sdp_file saved_sdp_file.sdp'
-video_transmission_template = 'ffmpeg -thread_queue_size 4 -i /dev/video0 -preset ultrafast -b:v 1000k -vcodec libx264 -tune zerolatency -an -f rtp rtp://{}:5555 -sdp_file saved_sdp_file.sdp'
+video_transmission_template = 'ffmpeg -thread_queue_size 4 -i /dev/video0 -preset ultrafast -vcodec libx264 -an -f rtp rtp://{}:5555 -sdp_file saved_sdp_file.sdp'
 
 def get_local_ip_helper(interface):
 
