@@ -38,16 +38,16 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
     else if(key=='s'){//backward
         if(forward >= 0){forward -= HORIZONTAL_INCREMENTS;}
     }
-    else if(key=='a'){// yaw left
+    else if(key=='q'){// yaw left
         if(yaw_right >= 0){yaw_right -= YAW_INCREMENTS;}
     }
-    else if(key=='d'){//yaw right
+    else if(key=='e'){//yaw right
         if(yaw_right <=0){yaw_right += YAW_INCREMENTS;}
     }
-    else if(key=='q'){//move left
+    else if(key=='a'){//move left
         if(right >= 0){right -= HORIZONTAL_INCREMENTS;}
     }
-    else if(key=='e'){//move right
+    else if(key=='d'){//move right
         if(right <=0){right += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='r'){//rise (higher)

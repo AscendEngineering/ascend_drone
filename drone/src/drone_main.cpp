@@ -57,8 +57,28 @@ int main(int argc, char** argv){
 
     //calibrate
     if(calibrate){
-        std::cout << "Calibrating" << std::endl;
-        ascendDrone.calibrate();
+
+        int sensor = -1;
+
+        std::cout << "What would you like to calibrate?" << std::endl;
+        std::cout << "1) Gyro" << std::endl;
+        std::cout << "2) Level Horizon" << std::endl;
+        std::cout << "3) Accelerometer" << std::endl;
+        std::cout << "4) Magnetometer" << std::endl;
+        std::cout << "5) All" << std::endl;
+        std::cin >> sensor;
+
+        //validity
+        if(sensor < -1 || sensor > 5){
+            std::cerr << "INVALID ENTRY, TRY AGAIN" << std::endl;
+            return 1;
+        }
+        if(sensor==5){
+            sensor = -1;
+        }
+
+        //calibrate
+        ascendDrone.calibrate(sensor);
         std::cout << "Calibration Done" << std::endl;
         return 0;
     }

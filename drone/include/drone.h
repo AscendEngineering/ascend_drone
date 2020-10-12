@@ -19,6 +19,7 @@ This file has all the operations that the drone can perform
 #include "sensors.h"
 #include <thread>
 
+#define YAW_FACTOR 25
 
 class drone{
 
@@ -45,7 +46,7 @@ class drone{
         void manual();
         void control_from_remote();
         void test_motor(int motor = -1);
-        void calibrate();
+        void calibrate(int sensor = -1);
 
         /********* Waypoint Methods *********/
         bool start_mission(const waypoints& mission);
