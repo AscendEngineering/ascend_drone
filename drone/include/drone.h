@@ -16,7 +16,7 @@ This file has all the operations that the drone can perform
 #include <mavsdk/plugins/shell/shell.h>
 #include "waypoints.h"
 #include <memory>
-#include "sensors.h"
+#include "px4_sensors.h"
 #include <thread>
 
 #define YAW_FACTOR 25
@@ -83,7 +83,7 @@ class drone{
         mavsdk::System* system;
         std::shared_ptr<mavsdk::Telemetry> telemetry;
         std::shared_ptr<mavsdk::Action> action;
-        std::shared_ptr<sensors> drone_sensors;
+        std::shared_ptr<px4_sensors> drone_sensors;
         std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
         

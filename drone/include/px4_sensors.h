@@ -15,11 +15,11 @@ using velocity = mavsdk::Telemetry::VelocityNed;
     //float down_m_s
 
 
-class sensors{
+class px4_sensors{
 
     public:
         
-        sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry);
+        px4_sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry);
 
         //get functions
         position get_position();

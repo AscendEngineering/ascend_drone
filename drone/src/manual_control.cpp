@@ -33,28 +33,28 @@ char getKeyPress(){
 void manual_control::translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate){
 
     if(key=='w'){ //forward
-        if(forward <=0){forward += HORIZONTAL_INCREMENTS;}
+        forward += HORIZONTAL_INCREMENTS;
     }
     else if(key=='s'){//backward
-        if(forward >= 0){forward -= HORIZONTAL_INCREMENTS;}
+        forward -= HORIZONTAL_INCREMENTS;
     }
     else if(key=='q'){// yaw left
-        if(yaw_right >= 0){yaw_right -= YAW_INCREMENTS;}
+        yaw_right -= YAW_INCREMENTS;
     }
     else if(key=='e'){//yaw right
-        if(yaw_right <=0){yaw_right += YAW_INCREMENTS;}
+        yaw_right += YAW_INCREMENTS;
     }
     else if(key=='a'){//move left
-        if(right >= 0){right -= HORIZONTAL_INCREMENTS;}
+        right -= HORIZONTAL_INCREMENTS;
     }
     else if(key=='d'){//move right
-        if(right <=0){right += HORIZONTAL_INCREMENTS;}
+        right += HORIZONTAL_INCREMENTS;
     }
     else if(key=='r'){//rise (higher)
-        if(down >= 0){down -= VERTICAL_INCREMENTS;}
+        down -= VERTICAL_INCREMENTS;
     }
     else if(key=='f'){//fall (lower)
-        if(down <=0){down += VERTICAL_INCREMENTS;}
+        down += VERTICAL_INCREMENTS;
     }
     else if(key=='t'){//rate increase
         rate += 0.1;
@@ -63,7 +63,7 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
         rate -= 0.1;
     }
     else if(key=='0'){//reset all
-        forward=0;yaw_right=0;right=0;down=0;
+        forward=0;yaw_right=0;right=0;down=0;rate=1.0;
     }
     else if(key=='p'){//package
         package_control::get_instance().flip_switch();
@@ -117,11 +117,13 @@ manual_control::manual_control(System* system){
             ", yaw_right: " + std::to_string(yaw_right) +
             ", rate: " + std::to_string(rate) + 
             "\n").c_str();
+        
+        //add speed and gps
         for(int i =0; i< msg.size(); i++){
             addch(msg[i]);
         }
 
-        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
+        offboard->set_velocity_body({forward,right,down,yaw_right});
         
         refresh();
     }

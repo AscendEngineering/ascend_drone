@@ -507,7 +507,7 @@ bool drone::connect_px4(){
     system = &px4.system();
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
-    drone_sensors = std::make_shared<sensors>(telemetry);
+    drone_sensors = std::make_shared<px4_sensors>(telemetry);
 
     return true;
 }
