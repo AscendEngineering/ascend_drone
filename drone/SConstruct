@@ -23,6 +23,7 @@ drone_files = ['drone.cpp',
     'waypoints.cpp',
     'drone_msg.cpp',
     'px4_sensors.cpp',
+    'external_sensors.cpp',
     'package_control.cpp'
     ]
 

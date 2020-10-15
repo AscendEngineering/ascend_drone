@@ -18,6 +18,7 @@ This file has all the operations that the drone can perform
 #include <memory>
 #include "px4_sensors.h"
 #include <thread>
+#include "external_sensors.h"
 
 #define YAW_FACTOR 25
 

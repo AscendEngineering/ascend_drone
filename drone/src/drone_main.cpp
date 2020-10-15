@@ -51,6 +51,13 @@ int main(int argc, char** argv){
 
 /*---------------------------------------------------------------*/
 
+    external_sensors ultra;
+    while(true){
+        std::cout << "distance: " << ultra.get_ultrasonic_distance()<< std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+    }
+    exit(0);
+
     //variables
     std::chrono::time_point<std::chrono::system_clock> last_heartbeat = std::chrono::system_clock::now();
     drone ascendDrone(run_simulation);
