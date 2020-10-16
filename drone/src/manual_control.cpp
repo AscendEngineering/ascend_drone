@@ -68,6 +68,9 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
     else if(key=='p'){//package
         package_control::get_instance().flip_switch();
     }
+    else if(key=='h'){//height
+        std::cout << sensor_group.get_ultrasonic_distance() << std::endl;
+    }
     else{
         refresh();
     }

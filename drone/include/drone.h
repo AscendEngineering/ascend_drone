@@ -87,6 +87,7 @@ class drone{
         std::shared_ptr<px4_sensors> drone_sensors;
         std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
+        external_sensors sensor_group;
         
         //coms
         zmq::context_t context;

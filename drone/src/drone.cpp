@@ -109,13 +109,19 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
+        int ultra_height = sensor_group.get_ultrasonic_distance();
+        int sending_height = current_pos.relative_altitude_m;
 
-        //if battery is too low, 
+        //check accuracy for ultra
+        if(ultra_height < 250){
+            std::cout << "Using Ultra height: " << ultra_height << std::endl;
+            sending_height = ultra_height;
+        }
 
         //send to atc
         bool sent = send_heartbeat(current_pos.longitude_deg,
             current_pos.latitude_deg,
-            current_pos.relative_altitude_m, 
+            sending_height, 
             current_battery);
 
 }
