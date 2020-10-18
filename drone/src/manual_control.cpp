@@ -38,16 +38,16 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
     else if(key=='s'){//backward
         if(forward >= 0){forward -= HORIZONTAL_INCREMENTS;}
     }
-    else if(key=='a'){// yaw left
+    else if(key=='q'){// yaw left
         if(yaw_right >= 0){yaw_right -= YAW_INCREMENTS;}
     }
-    else if(key=='d'){//yaw right
+    else if(key=='e'){//yaw right
         if(yaw_right <=0){yaw_right += YAW_INCREMENTS;}
     }
-    else if(key=='q'){//move left
+    else if(key=='a'){//move left
         if(right >= 0){right -= HORIZONTAL_INCREMENTS;}
     }
-    else if(key=='e'){//move right
+    else if(key=='d'){//move right
         if(right <=0){right += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='r'){//rise (higher)
@@ -57,16 +57,19 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
         if(down <=0){down += VERTICAL_INCREMENTS;}
     }
     else if(key=='t'){//rate increase
-        rate += 0.1;
+        rate += 0.2;
     }
     else if(key=='g'){//rate decrease
-        rate -= 0.1;
+        rate -= 0.2;
     }
     else if(key=='0'){//reset all
-        forward=0;yaw_right=0;right=0;down=0;
+        forward=0;yaw_right=0;right=0;down=0;rate=0.5;
     }
     else if(key=='p'){//package
         package_control::get_instance().flip_switch();
+    }
+    else if(key=='h'){//height
+        std::cout << sensor_group.get_ultrasonic_distance() << std::endl;
     }
     else{
         refresh();
@@ -80,7 +83,7 @@ manual_control::manual_control(System* system){
     float right = 0.0;
     float down = 0.0;
     float yaw_right = 0.0;
-    float rate = 1.0;
+    float rate = 0.5;
 
     //enter manual mode
     auto offboard = std::make_shared<Offboard>(*system);
@@ -117,11 +120,13 @@ manual_control::manual_control(System* system){
             ", yaw_right: " + std::to_string(yaw_right) +
             ", rate: " + std::to_string(rate) + 
             "\n").c_str();
+        
+        //add speed and gps
         for(int i =0; i< msg.size(); i++){
             addch(msg[i]);
         }
 
-        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
+        offboard->set_velocity_body({forward,right,down,yaw_right});
         
         refresh();
     }

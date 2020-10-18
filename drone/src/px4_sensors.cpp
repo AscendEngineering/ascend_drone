@@ -1,33 +1,33 @@
-#include "sensors.h"
+#include "px4_sensors.h"
 #include <iostream>
 
 
-sensors::sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry){
+px4_sensors::px4_sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry){
 
     telemetry = in_telemetry;
 
     //subscribe to each metric here
 }
 
-position sensors::get_position(){
+position px4_sensors::get_position(){
     return telemetry->position();
 }
-velocity sensors::get_velocity(){
+velocity px4_sensors::get_velocity(){
     return telemetry->position_velocity_ned().velocity;
 }
-int sensors::get_num_satellites(){
+int px4_sensors::get_num_satellites(){
     return telemetry->gps_info().num_satellites;
 }
-float sensors::gps_strength(){
+float px4_sensors::gps_strength(){
     int fix_type = (int)telemetry->gps_info().fix_type;
     return (float) fix_type/max_fixtype;
 }
-float sensors::get_battery(){
+float px4_sensors::get_battery(){
     float battery = telemetry->battery().remaining_percent;
     battery *= 100;
     return battery;
 }
-std::string sensors::get_flightmode(){
+std::string px4_sensors::get_flightmode(){
     std::string retval;
 
     using fm = mavsdk::Telemetry::FlightMode;
@@ -103,38 +103,38 @@ std::string sensors::get_flightmode(){
     return retval;
 }
 
-bool sensors::is_gyro_calibrated(){
+bool px4_sensors::is_gyro_calibrated(){
     return telemetry->health().is_gyrometer_calibration_ok;
 }
-bool sensors::is_accelerometer_calibrated(){
+bool px4_sensors::is_accelerometer_calibrated(){
     return telemetry->health().is_accelerometer_calibration_ok;
 }
-bool sensors::is_magmeter_calibrated(){
+bool px4_sensors::is_magmeter_calibrated(){
     return telemetry->health().is_magnetometer_calibration_ok;
 }
-bool sensors::is_level_calibrated(){
+bool px4_sensors::is_level_calibrated(){
     return telemetry->health().is_level_calibration_ok;
 }
-bool sensors::is_local_position_ok(){
+bool px4_sensors::is_local_position_ok(){
     return telemetry->health().is_local_position_ok;
 }
-bool sensors::is_global_position_ok(){
+bool px4_sensors::is_global_position_ok(){
     return telemetry->health().is_global_position_ok;
 }
-bool sensors::is_home_position_ok(){
+bool px4_sensors::is_home_position_ok(){
     return telemetry->health().is_home_position_ok;
 }
-float sensors::get_roll(){
+float px4_sensors::get_roll(){
     return telemetry->attitude_euler().roll_deg;
 }
-float sensors::get_pitch(){
+float px4_sensors::get_pitch(){
     return telemetry->attitude_euler().pitch_deg;
 }
-float sensors::get_yaw(){
+float px4_sensors::get_yaw(){
     return telemetry->attitude_euler().yaw_deg;
 }
 
-void sensors::print_all(){
+void px4_sensors::print_all(){
 
     //position
     position temp_pos = get_position();
@@ -165,7 +165,6 @@ void sensors::print_all(){
     std::cout << "get_roll: " << get_roll() << std::endl;
     std::cout << "get_pitch: " << get_pitch() << std::endl;
     std::cout << "get_yaw: " << get_yaw() << std::endl;
-
 
 }
 

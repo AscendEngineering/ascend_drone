@@ -109,19 +109,24 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
+        int ultra_height = sensor_group.get_ultrasonic_distance();
+        double sending_height = current_pos.relative_altitude_m;
 
-        //if battery is too low, 
+        //check accuracy for ultra
+        if(ultra_height < 250){
+            std::cout << "Using Ultra height: " << ultra_height << std::endl;
+            sending_height = (double)ultra_height/(double)100;
+        }
 
         //send to atc
         bool sent = send_heartbeat(current_pos.longitude_deg,
             current_pos.latitude_deg,
-            current_pos.relative_altitude_m, 
+            sending_height, 
             current_battery);
 
 }
 
 bool drone::unregister_with_atc(){
-
     return true;
 }
 
@@ -195,7 +200,7 @@ void drone::manual(){
 
             std::string user_resp;
 	    std::cout << "Battery: "<< drone_sensors->get_battery() << std::endl;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Autonomous Land \n7)Exit" << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -203,7 +208,6 @@ void drone::manual(){
                 arm();
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 takeoff();
-                std::this_thread::sleep_for(std::chrono::seconds(10));
             }
             else if(user_resp=="2"){
                 manual_control drone_control(system);
@@ -283,9 +287,9 @@ void drone::control_from_remote(){
                     yaw = landing_cmd.yaw();
                 }
                 
-                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Rate:" << rate << std::endl;
+                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*rate});
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*YAW_FACTOR*rate});
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
@@ -370,7 +374,7 @@ void drone::test_motor(int motor){
     result = shell->send("c");
 }
 
-void drone::calibrate(){
+void drone::calibrate(int sensor){
 
     bool calibration_complete = false;
 
@@ -379,6 +383,9 @@ void drone::calibrate(){
         if(prog.has_status_text){
             std::cout << prog.status_text;
         }
+        if(prog.progress == 1){
+            calibration_complete = true;
+        }
         std::cout << std::endl;
     };
 
@@ -386,43 +393,47 @@ void drone::calibrate(){
     std::shared_ptr<Calibration> calibration_engine = std::make_shared<Calibration>(*system);
 
     //gyro calibration
-    std::cout << "Calibrating Gyro..." << std::endl;
-    calibration_engine->calibrate_gyro_async(calibration_info);
-    while(!calibration_complete){}
-    calibration_complete = false;
-    std::cout << "...Gyro Calibrated" << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-
+    if(sensor == 1 || sensor == -1){
+        std::cout << "Calibrating Gyro..." << std::endl;
+        calibration_engine->calibrate_gyro_async(calibration_info);
+        while(!calibration_complete){}
+        calibration_complete = false;
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "...Gyro Calibrated" << std::endl;
+        
+    }
+    
     //level_horizon calibration
-    std::cout << "Calibrating level_horizon..." << std::endl;
-    calibration_engine->calibrate_level_horizon_async(calibration_info);
-    while(!calibration_complete){}
-    calibration_complete = false;
-    std::cout << "...level_horizon Calibrated" << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    if(sensor == 2 || sensor == -1){
+        std::cout << "Calibrating level_horizon..." << std::endl;
+        calibration_engine->calibrate_level_horizon_async(calibration_info);
+        while(!calibration_complete){}
+        calibration_complete = false;
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "...level_horizon Calibrated" << std::endl;
+    }
 
     //accelerometer calibration
-    std::cout << "Calibrating accelerometer..." << std::endl;
-    calibration_engine->calibrate_accelerometer_async(calibration_info);
-    while(!calibration_complete){}
-    calibration_complete = false;
-    std::cout << "...accelerometer calibrated" << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    if(sensor == 3 || sensor == -1){
+        std::cout << "Calibrating accelerometer..." << std::endl;
+        calibration_engine->calibrate_accelerometer_async(calibration_info);
+        while(!calibration_complete){}
+        calibration_complete = false;
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "...accelerometer calibrated" << std::endl;
+    }
 
     //magnetometer calibration
-    std::cout << "Calibrating magnetometer..." << std::endl;
-    calibration_engine->calibrate_magnetometer_async(calibration_info);
-    while(!calibration_complete){}
-    calibration_complete = false;
-    std::cout << "...magnetometer calibrated" << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    if(sensor == 4 || sensor == -1){
+        std::cout << "Calibrating magnetometer..." << std::endl;
+        calibration_engine->calibrate_magnetometer_async(calibration_info);
+        while(!calibration_complete){}
+        calibration_complete = false;
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "...magnetometer calibrated" << std::endl;
+    }
 
     /* CALIBRATION END */
-
 }
 
 bool drone::start_mission(const waypoints& mission){
@@ -502,7 +513,7 @@ bool drone::connect_px4(){
     system = &px4.system();
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
-    drone_sensors = std::make_shared<sensors>(telemetry);
+    drone_sensors = std::make_shared<px4_sensors>(telemetry);
 
     return true;
 }

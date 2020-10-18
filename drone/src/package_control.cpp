@@ -3,20 +3,20 @@
 
 
 void package_control::flip_switch(){
-    digitalWrite(0, !magnet_on);
+    digitalWrite(package_pin, !magnet_on);
     magnet_on = !magnet_on;
 }
 
 void package_control::pickup(){
     if(!magnet_on){
-        digitalWrite(0, true);
+        digitalWrite(package_pin, true);
         magnet_on = true;
     }
 }
 
 void package_control::release(){
     if(magnet_on){
-        digitalWrite(0, false);
+        digitalWrite(package_pin, false);
         magnet_on = false;
     }
 }

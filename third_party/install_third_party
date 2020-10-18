@@ -5,6 +5,7 @@ do
     tar -xzf archive/$FILE
 done
 
+
 #raspberry pi specific
 sudo apt-get install -y libraspberrypi-dev raspberrypi-kernel-headers
 sudo apt-get purge -y wolfram-engine
@@ -21,6 +22,7 @@ sudo apt-get install -y xmlto
 sudo apt-get install -y libncurses5-dev libncursesw5-dev
 sudo apt-get install -y cmake build-essential colordiff git doxygen
 sudo apt-get install -y libcurl4-openssl-dev
+sudo apt-get install -y network-manager-l2tp
 
 #python stuff
 pip3 install opencv-python
