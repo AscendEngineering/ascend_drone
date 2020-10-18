@@ -94,6 +94,7 @@ cd ../..
 
 #mavlink sdk
 cd MAVSDK
+git submodule update --init --recursive
 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -Bbuild/default -H.
 sudo cmake --build build/default --target install
 sudo ldconfig 
