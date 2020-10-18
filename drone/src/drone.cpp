@@ -110,12 +110,12 @@ void drone::send_heartbeat(){
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
         int ultra_height = sensor_group.get_ultrasonic_distance();
-        int sending_height = current_pos.relative_altitude_m;
+        double sending_height = current_pos.relative_altitude_m;
 
         //check accuracy for ultra
         if(ultra_height < 250){
             std::cout << "Using Ultra height: " << ultra_height << std::endl;
-            sending_height = ultra_height;
+            sending_height = (double)ultra_height/(double)100;
         }
 
         //send to atc
@@ -200,7 +200,7 @@ void drone::manual(){
 
             std::string user_resp;
 	    std::cout << "Battery: "<< drone_sensors->get_battery() << std::endl;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Autonomous Land \n7)Exit" << std::endl;
+            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){

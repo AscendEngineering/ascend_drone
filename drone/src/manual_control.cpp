@@ -33,37 +33,37 @@ char getKeyPress(){
 void manual_control::translateKeyPress(char key, float& forward, float& right, float& down, float& yaw_right, float& rate){
 
     if(key=='w'){ //forward
-        forward += HORIZONTAL_INCREMENTS;
+        if(forward <=0){forward += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='s'){//backward
-        forward -= HORIZONTAL_INCREMENTS;
+        if(forward >= 0){forward -= HORIZONTAL_INCREMENTS;}
     }
     else if(key=='q'){// yaw left
-        yaw_right -= YAW_INCREMENTS;
+        if(yaw_right >= 0){yaw_right -= YAW_INCREMENTS;}
     }
     else if(key=='e'){//yaw right
-        yaw_right += YAW_INCREMENTS;
+        if(yaw_right <=0){yaw_right += YAW_INCREMENTS;}
     }
     else if(key=='a'){//move left
-        right -= HORIZONTAL_INCREMENTS;
+        if(right >= 0){right -= HORIZONTAL_INCREMENTS;}
     }
     else if(key=='d'){//move right
-        right += HORIZONTAL_INCREMENTS;
+        if(right <=0){right += HORIZONTAL_INCREMENTS;}
     }
     else if(key=='r'){//rise (higher)
-        down -= VERTICAL_INCREMENTS;
+        if(down >= 0){down -= VERTICAL_INCREMENTS;}
     }
     else if(key=='f'){//fall (lower)
-        down += VERTICAL_INCREMENTS;
+        if(down <=0){down += VERTICAL_INCREMENTS;}
     }
     else if(key=='t'){//rate increase
-        rate += 0.1;
+        rate += 0.2;
     }
     else if(key=='g'){//rate decrease
-        rate -= 0.1;
+        rate -= 0.2;
     }
     else if(key=='0'){//reset all
-        forward=0;yaw_right=0;right=0;down=0;rate=1.0;
+        forward=0;yaw_right=0;right=0;down=0;rate=0.5;
     }
     else if(key=='p'){//package
         package_control::get_instance().flip_switch();
@@ -83,7 +83,7 @@ manual_control::manual_control(System* system){
     float right = 0.0;
     float down = 0.0;
     float yaw_right = 0.0;
-    float rate = 1.0;
+    float rate = 0.5;
 
     //enter manual mode
     auto offboard = std::make_shared<Offboard>(*system);
