@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#copy for easier reference
-cp ../../third_party/ascend_doms/messaging/definitions/msgDef.proto .
-protoc -I="." --python_out="." "./msgDef.proto"
