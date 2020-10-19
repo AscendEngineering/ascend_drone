@@ -1,5 +1,7 @@
 #pragma once
 
+#define ULTRA_ENABLED 0
+
 class external_sensors {
 
     public:

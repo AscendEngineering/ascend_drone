@@ -1,6 +1,8 @@
 #include "external_sensors.h"
 #include <wiringPi.h>
 #include <chrono>
+#include <iostream>
+#include <limits.h>
 
 
 external_sensors::external_sensors(){
@@ -10,6 +12,10 @@ external_sensors::external_sensors(){
 }
 
 double external_sensors::get_ultrasonic_distance(){
+
+    if(!ULTRA_ENABLED){
+        return INT_MAX;
+    }
 
     //output sonar
     digitalWrite(TRIG_PIN,HIGH);

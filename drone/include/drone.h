@@ -20,7 +20,7 @@ This file has all the operations that the drone can perform
 #include <thread>
 #include "external_sensors.h"
 
-#define YAW_FACTOR 25
+static const double YAW_FACTOR = 180.00;
 
 class drone{
 
