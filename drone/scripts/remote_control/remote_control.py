@@ -5,11 +5,6 @@ import copy
 import zmq
 import time
 
-
-#setup socket
-context = zmq.Context()
-socket = context.socket(zmq.PUSH)
-
 #setup global variables
 RATE_INCREMENT=0.2
 SENSITIVITY=0.05
@@ -17,16 +12,14 @@ YAW_RATE=5
 
 remote_open = True
 send_update = True
-max_rate=2
+max_rate=1
 drone_movements = {
     "x":0,
     "y":0,
     "z":0,
-    "rate":1,
+    "rate":0.2,
     "yaw":0
 }
-
-
 
 
 def same_dict(dict1,dict2):
@@ -149,12 +142,7 @@ def on_release(key):
 
     
 
-def send_msg(msg,ip):
-    global socket
-    socket.send(msg.SerializeToString())
     
-
-
 def convert_to_proto(dictionary_msg):
     sendme = msgDef_pb2.msg()
     sendme.name = "any_drone"
@@ -174,8 +162,9 @@ def main():
     print("Connecting to",args.ip_address)
 
     #connect to drone
+    context = zmq.Context()
+    socket = context.socket(zmq.PUSH)
     try:
-        global socket
         socket.connect("tcp://" + args.ip_address + ":5556")
     except:
         print("Could not connect to",args.ip_address)
@@ -189,13 +178,14 @@ def main():
     global remote_open
     global send_update
     global drone_movements
+
     while(remote_open):
 
         if(send_update):
             #send message
             print(drone_movements)
             proto_drone_movements = convert_to_proto(drone_movements)
-            send_msg(proto_drone_movements,args.ip_address)
+            socket.send(proto_drone_movements.SerializeToString())
             send_update = False
         continue
 
