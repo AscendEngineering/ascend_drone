@@ -25,7 +25,7 @@ namespace {
         if(in_yaw==0 || rate ==0){
             return 0;
         }
-        return in_yaw * (18+rate);
+        return in_yaw * (18+ (1/rate));
     }
 }
 
