@@ -15,6 +15,7 @@
 #include <future>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/calibration/calibration.h>
+#include <mavsdk/plugins/manual_control/manual_control.h>
 #include "package_control.h"
 
 using namespace mavsdk;
@@ -26,6 +27,23 @@ namespace {
             return 0;
         }
         return in_yaw * (18+ (1/rate));
+    }
+
+    char getKeyPress(){
+        char cmd;
+        int keypress = getch();
+        if(keypress == ERR){
+            return ' ';
+        }
+        if(keypress == 27 && getch() == 91){
+            keypress = getch();
+            if(keypress==65){ cmd='r';}
+            else if(keypress==66){ cmd='f';}
+        }
+        else{
+            cmd = (char)keypress;
+        }
+        return cmd;
     }
 }
 
@@ -85,21 +103,8 @@ std::vector<std::string> drone::collect_messages(){
 
         //if messages, collect
         if(comm_items[0].revents & ZMQ_POLLIN){
-            // std::string sender;
-            // std::string operation;
             std::string data;
-
-
-            // comm::get_msg_header(recv_socket,sender,operation);
-            
-            // //acknowledgement TODO
-            // if(operation=="A"){
-            //     std::cout<<"ATC Acknowledged"<<std::endl;
-            //     continue;
-            // }
-
             data = comm::get_msg_data(recv_socket);
-            //send_ack();
             messages.push_back(data);
         }
         else{
@@ -123,7 +128,7 @@ void drone::send_heartbeat(){
         double sending_height = current_pos.relative_altitude_m;
 
         //check accuracy for ultra
-        if(ultra_height < 250){
+        if(ultra_height < 100){
             std::cout << "Using Ultra height: " << ultra_height << std::endl;
             sending_height = (double)ultra_height/(double)100;
         }
@@ -150,6 +155,7 @@ bool drone::arm(){
     }
 
     //arm
+    std::shared_ptr<mavsdk::Action> action = std::make_shared<Action>(*system);
     const Action::Result arm_result = action->arm();
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -220,7 +226,8 @@ void drone::manual(){
                 takeoff();
             }
             else if(user_resp=="2"){
-                manual_control drone_control(system);
+                //manual_control drone_control(system);
+                rc_control();
             }
             else if(user_resp=="3"){
                 package_control::get_instance().pickup();
@@ -258,7 +265,6 @@ void drone::control_from_remote(){
         std::cerr << "Error gaining offboard control" << std::endl;
         return;
     }
-
 
     //enable killswitch
     utilities::line_buffer(false);
@@ -518,8 +524,9 @@ bool drone::connect_px4(){
     //assigning the system
     system = &px4.system();
     telemetry = std::make_shared<Telemetry>(*system);
-    action = std::make_shared<Action>(*system);
-    drone_sensors = std::make_shared<px4_sensors>(telemetry);
+    // action = std::make_shared<Action>(*system);
+    // drone_sensors = std::make_shared<px4_sensors>(telemetry);
+    rc_control();
 
     return true;
 }
@@ -597,4 +604,85 @@ void drone::load_config_vars(){
 bool drone::send_heartbeat(double lng, double lat, double alt, double bat_percentage){
     std::string msg = msg_generator::generate_heartbeat(drone_name, lng, lat, alt, bat_percentage);
     return comm::send_msg(send_socket,drone_name,msg,atc_ip);
+}
+
+void drone::rc_control(){
+
+
+    auto manual_control = std::make_shared<ManualControl>(*system);
+
+    //check our health
+    while (telemetry->health_all_ok() != true) {
+        Telemetry::Health health = telemetry->health();
+        std::cerr << "Drone is not healthy: " << health << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    // for (unsigned i = 0; i << 10; ++i) {
+    //     manual_control->set_manual_control_input(0.f, 0.f, 0.5f, 0.f);
+    // }
+
+    //arm
+    std::shared_ptr<mavsdk::Action> action = std::make_shared<Action>(*system);
+    const Action::Result action_result = action->arm();
+    if (action_result != Action::Result::Success) {
+        std::cerr << "Arming failed: " << action_result << std::endl;
+        return;
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    // for (unsigned i = 0; i << 10; ++i) {
+    //     manual_control->set_manual_control_input(0.f, 0.f, 0.5f, 0.f);
+    // }
+
+    manual_control->set_manual_control_input(0.f, 0.f, 0.f, 0.f); /*Needed*/
+    auto manual_control_result = manual_control->start_position_control();
+    if (manual_control_result != ManualControl::Result::Success) {
+        std::cerr << "Position control start failed: " << manual_control_result << std::endl;
+        return;
+    }
+
+    //std::this_thread::sleep_for(std::chrono::seconds(1));
+    // //start ncurses
+    // initscr();
+    // cbreak();
+    // noecho();
+    // nodelay(stdscr, TRUE);
+    // scrollok(stdscr,TRUE);
+    // clear();
+
+    
+    //auto succ = manual_control->start_position_control();
+    //std::cout << "Result of manual: " << (int)succ << std::endl;
+    while(true){
+        manual_control->set_manual_control_input(1.0f,1.0f,1.0f,1.0f);
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        // //char pressed = ::getKeyPress();
+        // if(pressed==' '){
+        //     manual_control->set_manual_control_input(0.5f,0.5f,0.5f,0.5f);
+        // }
+        // else{
+        //     std::cout << "Pressed: " << pressed << std::endl;
+        //     float x = 0;
+        //     float y = 0;
+        //     float z = 0;
+        //     float r = 0;
+
+        //     if(pressed=='w'){
+        //         y = 1;
+        //     }
+        //     else if(pressed=='s'){
+        //         y=-1;
+        //     }
+        //     else if(pressed=='d'){
+        //         x=1;
+        //     }
+        //     else if(pressed=='a'){
+        //         x=-1;
+        //     }
+        //     //refresh();
+        // }
+    }
+    //endwin();
+
 }

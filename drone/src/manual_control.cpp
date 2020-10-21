@@ -25,7 +25,6 @@ char getKeyPress(){
     else{
         cmd = (char)keypress;
     }
-
     return cmd;
 }
 
