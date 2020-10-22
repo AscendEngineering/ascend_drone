@@ -618,10 +618,6 @@ void drone::rc_control(){
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    // for (unsigned i = 0; i << 10; ++i) {
-    //     manual_control->set_manual_control_input(0.f, 0.f, 0.5f, 0.f);
-    // }
-
     //arm
     std::shared_ptr<mavsdk::Action> action = std::make_shared<Action>(*system);
     const Action::Result action_result = action->arm();
@@ -631,10 +627,6 @@ void drone::rc_control(){
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    // for (unsigned i = 0; i << 10; ++i) {
-    //     manual_control->set_manual_control_input(0.f, 0.f, 0.5f, 0.f);
-    // }
-
     manual_control->set_manual_control_input(0.f, 0.f, 0.f, 0.f); /*Needed*/
     auto manual_control_result = manual_control->start_position_control();
     if (manual_control_result != ManualControl::Result::Success) {
@@ -642,47 +634,54 @@ void drone::rc_control(){
         return;
     }
 
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
-    // //start ncurses
-    // initscr();
-    // cbreak();
-    // noecho();
-    // nodelay(stdscr, TRUE);
-    // scrollok(stdscr,TRUE);
-    // clear();
+    //start ncurses
+    initscr();
+    cbreak();
+    noecho();
+    nodelay(stdscr, TRUE);
+    scrollok(stdscr,TRUE);
+    clear();
 
-    
-    //auto succ = manual_control->start_position_control();
-    //std::cout << "Result of manual: " << (int)succ << std::endl;
+
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    float r = 0;
+
     while(true){
-        manual_control->set_manual_control_input(1.0f,1.0f,1.0f,1.0f);
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        // //char pressed = ::getKeyPress();
-        // if(pressed==' '){
-        //     manual_control->set_manual_control_input(0.5f,0.5f,0.5f,0.5f);
-        // }
-        // else{
-        //     std::cout << "Pressed: " << pressed << std::endl;
-        //     float x = 0;
-        //     float y = 0;
-        //     float z = 0;
-        //     float r = 0;
-
-        //     if(pressed=='w'){
-        //         y = 1;
-        //     }
-        //     else if(pressed=='s'){
-        //         y=-1;
-        //     }
-        //     else if(pressed=='d'){
-        //         x=1;
-        //     }
-        //     else if(pressed=='a'){
-        //         x=-1;
-        //     }
-        //     //refresh();
-        // }
+        char pressed = ::getKeyPress();
+        if(pressed==' '){
+            manual_control->set_manual_control_input(x,y,z,r);
+        }
+        else{
+            if(pressed=='w'){
+                y = 1.0;
+            }
+            else if(pressed=='s'){
+                y= -1.0;
+            }
+            else if(pressed=='d'){
+                x=1.0;
+            }
+            else if(pressed=='a'){
+                x=-1.0;
+            }
+            else if(pressed=='r'){
+                z=1.0;
+            }
+            else if(pressed=='f'){
+                z=-1.0;
+            }
+            else if(pressed=='0'){
+                x=0.0;y=0.0;z=0.5;r=0.0;
+            }
+            
+            std::cout << x << " " << y << " " << z << " " << r << std::endl;
+            manual_control->set_manual_control_input(x,y,z,r);
+            refresh();
+        }
     }
-    //endwin();
+    endwin();
 
 }
