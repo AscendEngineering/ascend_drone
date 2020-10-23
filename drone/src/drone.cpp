@@ -20,6 +20,16 @@
 using namespace mavsdk;
 
 
+namespace {
+    float adjust_yaw(float in_yaw, float rate){
+        if(in_yaw==0 || rate ==0){
+            return 0;
+        }
+        return in_yaw * (18+ (1/rate));
+    }
+}
+
+
 drone::drone(bool in_simulation): context(1),
                 send_socket(context, ZMQ_PUSH),
                 recv_socket(context, ZMQ_PULL),
@@ -280,16 +290,12 @@ void drone::control_from_remote(){
                 float x = landing_cmd.x();
                 float y = landing_cmd.y();
                 float z = landing_cmd.z();
-                float yaw = 0;
+                float yaw = landing_cmd.yaw();
                 float rate = landing_cmd.rate();
-
-                if(landing_cmd.has_yaw()){
-                    yaw = landing_cmd.yaw();
-                }
                 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
                 std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, yaw*YAW_FACTOR*rate});
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard

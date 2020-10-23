@@ -126,7 +126,7 @@ manual_control::manual_control(System* system){
             addch(msg[i]);
         }
 
-        offboard->set_velocity_body({forward,right,down,yaw_right});
+        offboard->set_velocity_body({forward*rate,right*rate,down*rate,yaw_right*rate});
         
         refresh();
     }
