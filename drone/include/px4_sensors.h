@@ -14,6 +14,12 @@ using velocity = mavsdk::Telemetry::VelocityNed;
     //float east_m_s
     //float down_m_s
 
+using distance = mavsdk::Telemetry::DistanceSensor;
+    //minimum_distance_m
+    //maximum_distance_m
+    //current_distance_m
+
+#define TFMINI_ENABLED 1
 
 class px4_sensors{
 
@@ -22,6 +28,7 @@ class px4_sensors{
         px4_sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry);
 
         //get functions
+        distance get_distance();
         position get_position();
         velocity get_velocity();
         int get_num_satellites();

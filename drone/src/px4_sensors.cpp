@@ -9,6 +9,9 @@ px4_sensors::px4_sensors(std::shared_ptr<mavsdk::Telemetry> in_telemetry){
     //subscribe to each metric here
 }
 
+distance px4_sensors::get_distance(){
+    return telemetry->distance_sensor();
+}
 position px4_sensors::get_position(){
     return telemetry->position();
 }

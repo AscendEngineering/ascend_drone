@@ -5,7 +5,9 @@
 #include "config_handler.h"
 #include "drone_msg.h"
 #include "manual_control.h"
+#include "package_control.h"
 #include "utilities.h"
+
 #include <mavsdk/mavsdk.h>
 #include <iostream>
 #include <curses.h>
@@ -13,9 +15,10 @@
 #include <chrono>  
 #include <memory>
 #include <future>
+#include <math.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/calibration/calibration.h>
-#include "package_control.h"
+
 
 using namespace mavsdk;
 
@@ -119,13 +122,24 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
-        int ultra_height = sensor_group.get_ultrasonic_distance();
+        
         double sending_height = current_pos.relative_altitude_m;
 
-        //check accuracy for ultra
-        if(ultra_height < 250){
-            std::cout << "Using Ultra height: " << ultra_height << std::endl;
-            sending_height = (double)ultra_height/(double)100;
+        //check height sensors
+        if(ULTRA_ENABLED){
+            int ultra_height = sensor_group.get_ultrasonic_distance();
+            if(ultra_height < 100){
+                sending_height = (double)ultra_height/(double)100;
+            }
+        }
+        else if(TFMINI_ENABLED){
+            distance tfmini_reading= drone_sensors->get_distance();
+            bool in_range = !std::isnan(tfmini_reading.current_distance_m)
+                && tfmini_reading.current_distance_m > tfmini_reading.minimum_distance_m
+                && tfmini_reading.current_distance_m < tfmini_reading.maximum_distance_m;
+            if(in_range){
+                sending_height = (double)tfmini_reading.current_distance_m / (double)100;
+            }
         }
 
         //send to atc
