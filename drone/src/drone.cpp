@@ -143,6 +143,10 @@ void drone::send_heartbeat(){
         }
 
         //send to atc
+        std::cout << "\tlng: " << current_pos.longitude_deg 
+            << " lat: " << current_pos.latitude_deg
+            << " alt: " << sending_height << std::endl;
+
         bool sent = send_heartbeat(current_pos.longitude_deg,
             current_pos.latitude_deg,
             sending_height, 
@@ -308,7 +312,6 @@ void drone::control_from_remote(){
                 float rate = landing_cmd.rate();
                 
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
-                std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
             }
             else if(cmd_msg.has_action_cmd()){
