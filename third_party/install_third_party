@@ -102,3 +102,16 @@ sudo cmake --build build/default --target install
 sudo ldconfig 
 cd ..
 
+#setup go
+sudo tar -C /usr/local -xzf archive/go1.15.4.tar.gz
+echo >> $HOME/.profile
+echo "#Go & gdrive"  >> $HOME/.profile
+echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+mkdir -p $HOME/build
+echo 'export GOPATH=$HOME/build/go' >> $HOME/.profile
+source $HOME/.profile
+
+#gdrive
+go get github.com/prasmussen/gdrive
+echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.profile
+source $HOME/.profile
