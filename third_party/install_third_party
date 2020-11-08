@@ -103,6 +103,9 @@ sudo ldconfig
 cd ..
 
 #setup go
+cd archive
+wget https://golang.org/dl/go1.15.4.linux-armv6l.tar.gz
+cd ..
 sudo tar -C /usr/local -xzf archive/go1.15.4.tar.gz
 echo >> $HOME/.profile
 echo "#Go & gdrive"  >> $HOME/.profile
