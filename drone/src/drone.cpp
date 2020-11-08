@@ -277,9 +277,8 @@ void drone::control_from_remote(){
         return;
     }
 
-
-    //enable killswitch
     utilities::line_buffer(false);
+    drone::collect_messages(); //throwaway builtup messages
 
     auto last_heartbeat = std::chrono::system_clock::now();
 
@@ -299,6 +298,7 @@ void drone::control_from_remote(){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
 
             if(cmd_msg.has_stop_remote()){
+                std::cout << "Stopping remote connection" << std::endl;
                 remote_controlling = false;
                 break;
             }
@@ -310,9 +310,31 @@ void drone::control_from_remote(){
                 float z = landing_cmd.z();
                 float yaw = landing_cmd.yaw();
                 float rate = landing_cmd.rate();
-                
+
+                //stop if needed
                 std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+                if(offboard->is_active()){
+                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
+                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                        offboard_result = offboard->stop();
+                        std::cout << "Holding..."<< std::endl;
+                        continue;
+                    }
+                    else{
+                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+                    }
+                }
+                else{
+                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
+                        continue;
+                    }
+                    else{
+                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                        Offboard::Result offboard_result = offboard->start();
+                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+                        std::cout << "Resuming..."<< std::endl;
+                    }
+                }
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
@@ -354,6 +376,8 @@ void drone::control_from_remote(){
         auto current_time = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_time = current_time-last_heartbeat;
         if(elapsed_time.count() > 0.5){
+            velocity curr_vel = drone_sensors->get_velocity();
+            std::cout << "north_m_s: " << curr_vel.north_m_s << " east_m_s: " << curr_vel.east_m_s << " down_m_s: " << curr_vel.down_m_s << std::endl;
             send_heartbeat();
             last_heartbeat = std::chrono::system_clock::now();
         }
