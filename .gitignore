@@ -5,6 +5,7 @@ third_party/protobuf-3.11.2/
 third_party/raspicam/
 third_party/zeromq-4.3.2/
 third_party/go/
+third_party/archive/go*
 drone/drone
 drone/kill_drone
 *~
