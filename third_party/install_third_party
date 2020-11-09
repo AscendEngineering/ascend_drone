@@ -118,3 +118,14 @@ source $HOME/.profile
 go get github.com/prasmussen/gdrive
 echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.profile
 source $HOME/.profile
+
+#loging purposes
+cd ../drone
+mkdir -p logs
+mkdir -p $HOME/.gdrive
+cp archive/google_drive_key.json $HOME/.gdrive/
+gdrive --service-account google_drive_key.json
+cd ../third_party
+
+
+
