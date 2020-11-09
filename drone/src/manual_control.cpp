@@ -1,4 +1,5 @@
 #include "manual_control.h"
+#include "loguru.hpp"
 
 #include <curses.h>
 #include <iostream>
@@ -69,7 +70,7 @@ void manual_control::translateKeyPress(char key, float& forward, float& right, f
         package_control::get_instance().flip_switch();
     }
     else if(key=='h'){//height
-        std::cout << sensor_group.get_ultrasonic_distance() << std::endl;
+        LOG_S(INFO) << sensor_group.get_ultrasonic_distance() << std::endl;
     }
     else{
         refresh();

@@ -1,6 +1,7 @@
 
 #include "waypoints.h"
 #include <mavsdk/plugins/mission/mission.h>
+#include "loguru.hpp"
 
 
 // void waypoints::add_waypoints(::ascend::waypointList_msg waypoint_list){
@@ -25,23 +26,23 @@ const std::vector<std::shared_ptr<mavsdk::Mission::MissionItem>>& waypoints::get
 
 void waypoints::print_mission(){
     
-    std::cout << "\n_______MISSION________" <<std::endl;
+    LOG_S(INFO) << "\n_______MISSION________" <<std::endl;
 
     for(int i =0; i< m_waypoints.size(); i++){
-        std::cout << i << "."
+        LOG_S(INFO) << i << "."
                 << "\tLat: " << m_waypoints[i]->latitude_deg << "\n"
                 << "\tLong: " << m_waypoints[i]->longitude_deg << "\n"
                 << "\tAlt: " << m_waypoints[i]->relative_altitude_m << "\n"
                 << "\tSpeed: " << m_waypoints[i]->speed_m_s << "\n";
-        std::cout << std::endl;
+        LOG_S(INFO) << std::endl;
     }
 
-    std::cout << "______________________" <<std::endl;
+    LOG_S(INFO) << "______________________" <<std::endl;
     
 }
 
 void waypoints::output_kml(){
-    std::cout << "todo" << std::endl;
+    std::cerr << "todo" << std::endl;
 }
 
 
