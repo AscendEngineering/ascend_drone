@@ -47,7 +47,7 @@ class drone{
         void control_from_remote();
         void test_motor(int motor = -1);
         void calibrate(int sensor = -1);
-        void get_px4log();
+        void save_px4log(const std::string& save_as);
 
         /********* Waypoint Methods *********/
         bool start_mission(const waypoints& mission);

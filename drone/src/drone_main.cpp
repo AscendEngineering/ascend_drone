@@ -127,6 +127,7 @@ int main(int argc, char** argv){
     
     ascendDrone.land();
 
+    ascendDrone.save_px4log(timestamp);
 
     return 0;
 }

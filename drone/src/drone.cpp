@@ -433,7 +433,7 @@ void drone::calibrate(int sensor){
         if(prog.has_status_text){
             std::cerr << prog.status_text;
         }
-        if(prog.progress == 1){
+        if(prog.progress >= 1){
             calibration_complete = true;
         }
         std::cerr << std::endl;
@@ -486,10 +486,23 @@ void drone::calibrate(int sensor){
     /* CALIBRATION END */
 }
 
-void drone::get_px4log(){
+void drone::save_px4log(const std::string& save_as){
     auto log_files = std::make_shared<LogFiles>(*system);
     std::pair< LogFiles::Result, std::vector< LogFiles::Entry > > log_result = log_files->get_entries();
     std::cout << "Number of log files: " << log_result.second.size() << std::endl;
+
+    //check download status callback
+    bool download_complete = false;
+    std::function<void(LogFiles::Result, LogFiles::ProgressData)> download_info = [&](LogFiles::Result res, LogFiles::ProgressData prog){
+        LOG_S(INFO) << "Result: " << (int)res << " Download Progress: " << prog.progress * 100;
+        if(prog.progress >= 1){
+            download_complete=true;
+        }
+    };
+
+    //initiate download
+    log_files->download_log_file_async(log_result.second.back().id,"logs/",download_info);
+    while(!download_complete){}
 }
 
 bool drone::start_mission(const waypoints& mission){
