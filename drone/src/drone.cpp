@@ -4,8 +4,11 @@
 #include "constants.h"
 #include "config_handler.h"
 #include "drone_msg.h"
+#include "loguru.hpp"
 #include "manual_control.h"
+#include "package_control.h"
 #include "utilities.h"
+
 #include <mavsdk/mavsdk.h>
 #include <iostream>
 #include <curses.h>
@@ -13,9 +16,11 @@
 #include <chrono>  
 #include <memory>
 #include <future>
+#include <math.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/calibration/calibration.h>
-#include "package_control.h"
+#include <mavsdk/plugins/log_files/log_files.h>
+
 
 using namespace mavsdk;
 
@@ -119,16 +124,31 @@ void drone::send_heartbeat(){
         //collect sensor info (lat,lng,alt,battery)
         position current_pos = drone_sensors->get_position();
         float current_battery = drone_sensors->get_battery();
-        int ultra_height = sensor_group.get_ultrasonic_distance();
+        
         double sending_height = current_pos.relative_altitude_m;
 
-        //check accuracy for ultra
-        if(ultra_height < 250){
-            std::cout << "Using Ultra height: " << ultra_height << std::endl;
-            sending_height = (double)ultra_height/(double)100;
+        //check height sensors
+        if(ULTRA_ENABLED){
+            int ultra_height = sensor_group.get_ultrasonic_distance();
+            if(ultra_height < 100){
+                sending_height = (double)ultra_height/(double)100;
+            }
+        }
+        else if(TFMINI_ENABLED){
+            distance tfmini_reading= drone_sensors->get_distance();
+            bool in_range = !std::isnan(tfmini_reading.current_distance_m)
+                && tfmini_reading.current_distance_m > tfmini_reading.minimum_distance_m
+                && tfmini_reading.current_distance_m < tfmini_reading.maximum_distance_m;
+            if(in_range){
+                sending_height = (double)tfmini_reading.current_distance_m / (double)100;
+            }
         }
 
         //send to atc
+        LOG_S(INFO) << "\tlng: " << current_pos.longitude_deg 
+            << " lat: " << current_pos.latitude_deg
+            << " alt: " << sending_height;
+
         bool sent = send_heartbeat(current_pos.longitude_deg,
             current_pos.latitude_deg,
             sending_height, 
@@ -209,8 +229,8 @@ void drone::manual(){
         while(!correct_resp){
 
             std::string user_resp;
-	    std::cout << "Battery: "<< drone_sensors->get_battery() << std::endl;
-            std::cout << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
+	        LOG_S(INFO) << "Battery: "<< drone_sensors->get_battery();
+            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -242,10 +262,11 @@ void drone::manual(){
 
         //output current position
         auto ground_pos = drone_sensors->get_position();
-        std::cout << "absolute pos: " << ground_pos.absolute_altitude_m << std::endl;
-        std::cout << "relative pos: " << ground_pos.relative_altitude_m  << std::endl;
+        LOG_S(INFO) << "absolute pos: " << ground_pos.absolute_altitude_m;
+        LOG_S(INFO) << "relative pos: " << ground_pos.relative_altitude_m;    
     }
 }
+
 void drone::control_from_remote(){
 
     //enter manual mode
@@ -259,9 +280,8 @@ void drone::control_from_remote(){
         return;
     }
 
-
-    //enable killswitch
     utilities::line_buffer(false);
+    drone::collect_messages(); //throwaway builtup messages
 
     auto last_heartbeat = std::chrono::system_clock::now();
 
@@ -281,6 +301,7 @@ void drone::control_from_remote(){
             ascend::msg cmd_msg = msg_generator::deserialize(msg);
 
             if(cmd_msg.has_stop_remote()){
+                LOG_S(INFO) << "Stopping remote connection";
                 remote_controlling = false;
                 break;
             }
@@ -292,10 +313,31 @@ void drone::control_from_remote(){
                 float z = landing_cmd.z();
                 float yaw = landing_cmd.yaw();
                 float rate = landing_cmd.rate();
-                
-                std::cout << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
-                std::cout << "Height: " << drone_sensors->get_position().relative_altitude_m << std::endl;
-                offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+
+                //stop if needed
+                LOG_S(INFO) << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
+                if(offboard->is_active()){
+                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
+                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                        offboard_result = offboard->stop();
+                        LOG_S(INFO) << "Holding..."<< std::endl;
+                        continue;
+                    }
+                    else{
+                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+                    }
+                }
+                else{
+                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
+                        continue;
+                    }
+                    else{
+                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                        Offboard::Result offboard_result = offboard->start();
+                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
+                        LOG_S(INFO) << "Resuming..."<< std::endl;
+                    }
+                }
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
@@ -337,6 +379,8 @@ void drone::control_from_remote(){
         auto current_time = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_time = current_time-last_heartbeat;
         if(elapsed_time.count() > 0.5){
+            velocity curr_vel = drone_sensors->get_velocity();
+            LOG_S(INFO) << "north_m_s: " << curr_vel.north_m_s << " east_m_s: " << curr_vel.east_m_s << " down_m_s: " << curr_vel.down_m_s << std::endl;
             send_heartbeat();
             last_heartbeat = std::chrono::system_clock::now();
         }
@@ -387,12 +431,12 @@ void drone::calibrate(int sensor){
     //define callback function
     std::function<void(Calibration::Result, Calibration::ProgressData)> calibration_info = [&](Calibration::Result res, Calibration::ProgressData prog){
         if(prog.has_status_text){
-            std::cout << prog.status_text;
+            std::cerr << prog.status_text;
         }
         if(prog.progress == 1){
             calibration_complete = true;
         }
-        std::cout << std::endl;
+        std::cerr << std::endl;
     };
 
     /* CALIBRATION BEGIN */
@@ -400,46 +444,52 @@ void drone::calibrate(int sensor){
 
     //gyro calibration
     if(sensor == 1 || sensor == -1){
-        std::cout << "Calibrating Gyro..." << std::endl;
+        std::cerr << "Calibrating Gyro..." << std::endl;
         calibration_engine->calibrate_gyro_async(calibration_info);
         while(!calibration_complete){}
         calibration_complete = false;
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        std::cout << "...Gyro Calibrated" << std::endl;
+        std::cerr << "...Gyro Calibrated" << std::endl;
         
     }
     
     //level_horizon calibration
     if(sensor == 2 || sensor == -1){
-        std::cout << "Calibrating level_horizon..." << std::endl;
+        std::cerr << "Calibrating level_horizon..." << std::endl;
         calibration_engine->calibrate_level_horizon_async(calibration_info);
         while(!calibration_complete){}
         calibration_complete = false;
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        std::cout << "...level_horizon Calibrated" << std::endl;
+        std::cerr << "...level_horizon Calibrated" << std::endl;
     }
 
     //accelerometer calibration
     if(sensor == 3 || sensor == -1){
-        std::cout << "Calibrating accelerometer..." << std::endl;
+        std::cerr << "Calibrating accelerometer..." << std::endl;
         calibration_engine->calibrate_accelerometer_async(calibration_info);
         while(!calibration_complete){}
         calibration_complete = false;
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        std::cout << "...accelerometer calibrated" << std::endl;
+        std::cerr << "...accelerometer calibrated" << std::endl;
     }
 
     //magnetometer calibration
     if(sensor == 4 || sensor == -1){
-        std::cout << "Calibrating magnetometer..." << std::endl;
+        std::cerr << "Calibrating magnetometer..." << std::endl;
         calibration_engine->calibrate_magnetometer_async(calibration_info);
         while(!calibration_complete){}
         calibration_complete = false;
         std::this_thread::sleep_for(std::chrono::seconds(10));
-        std::cout << "...magnetometer calibrated" << std::endl;
+        std::cerr << "...magnetometer calibrated" << std::endl;
     }
 
     /* CALIBRATION END */
+}
+
+void drone::get_px4log(){
+    auto log_files = std::make_shared<LogFiles>(*system);
+    std::pair< LogFiles::Result, std::vector< LogFiles::Entry > > log_result = log_files->get_entries();
+    std::cout << "Number of log files: " << log_result.second.size() << std::endl;
 }
 
 bool drone::start_mission(const waypoints& mission){
@@ -493,7 +543,7 @@ void drone::wait_for_mission_completion(){
     //subscribe to the updates 
     m_mission->subscribe_mission_progress([&](mavsdk::Mission::MissionProgress progress) { 
         int progress_percentage = (float)(progress.current/progress.total); 
-        std::cout << progress_percentage << std::endl;    
+        LOG_S(INFO) << progress_percentage << std::endl;    
     });
 
     //wait until done
@@ -509,10 +559,10 @@ bool drone::connect_px4(){
         ConnectionResult conn_result = px4.add_udp_connection("",14550);
     }
 
-    std::cout << "Connecting" << std::endl;
+    LOG_S(INFO) << "Connecting" << std::endl;
     while (!px4.is_connected()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        std::cout<<".";
+        LOG_S(INFO)<<".";
     }
 
     //assigning the system

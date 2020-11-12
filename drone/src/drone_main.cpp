@@ -1,15 +1,18 @@
-#include <iostream>
-#include <string>
+#include "config_handler.h"
+#include "constants.h"
 #include "drone.h"
 #include "drone_msg.h"
-#include "constants.h"
-#include "config_handler.h"
-#include <cxxopts.hpp>
+#include "loguru.hpp"
+#include "utilities.h"
+#include "waypoints.h"
+
 #include <chrono>
+#include <cxxopts.hpp>
+#include <iostream>
+#include <string>
 #include <thread>
 #include <unistd.h>
-#include "waypoints.h"
-#include "utilities.h"
+
 
 #define MESSAGE_DEBUGGING 0
 
@@ -22,11 +25,17 @@ namespace {
 }
 
 void exiting() {
-    std::cout << "Exiting" << std::endl;
+    std::cerr << "Exiting" << std::endl;
 }
 
 
 int main(int argc, char** argv){
+
+
+    //logging
+    std::string timestamp = utilities::timestamp();
+    loguru::init(argc, argv);
+    loguru::add_file( ("logs/"+timestamp+".log").c_str() , loguru::Append, loguru::Verbosity_INFO);
 
     //Args
 /*---------------------------------------------------------------*/
@@ -40,7 +49,7 @@ int main(int argc, char** argv){
     auto cmd_line_args = options.parse(argc, argv);
 
     if(cmd_line_args.count("help")){
-        std::cout << options.help() << std::endl;
+        std::cerr << options.help() << std::endl;
         exit(0);
     }
 
@@ -60,12 +69,12 @@ int main(int argc, char** argv){
 
         int sensor = -1;
 
-        std::cout << "What would you like to calibrate?" << std::endl;
-        std::cout << "1) Gyro" << std::endl;
-        std::cout << "2) Level Horizon" << std::endl;
-        std::cout << "3) Accelerometer" << std::endl;
-        std::cout << "4) Magnetometer" << std::endl;
-        std::cout << "5) All" << std::endl;
+        std::cerr << "What would you like to calibrate?" << std::endl;
+        std::cerr << "1) Gyro" << std::endl;
+        std::cerr << "2) Level Horizon" << std::endl;
+        std::cerr << "3) Accelerometer" << std::endl;
+        std::cerr << "4) Magnetometer" << std::endl;
+        std::cerr << "5) All" << std::endl;
         std::cin >> sensor;
 
         //validity
@@ -79,14 +88,13 @@ int main(int argc, char** argv){
 
         //calibrate
         ascendDrone.calibrate(sensor);
-        std::cout << "Calibration Done" << std::endl;
+        std::cerr << "Calibration Done" << std::endl;
         return 0;
     }
 
-
     //test motors
     if(test_motors){
-        std::cout << "Testing Motor" << std::endl;
+        std::cerr << "Testing Motor" << std::endl;
         ascendDrone.test_motor();
         return 0;
     }
@@ -118,5 +126,7 @@ int main(int argc, char** argv){
     }
     
     ascendDrone.land();
+
+
     return 0;
 }

@@ -36,7 +36,6 @@ class drone{
         /************* registration ***************/
         bool register_with_atc();
         void send_heartbeat();
-        
         bool unregister_with_atc();
 
         /********* flight controller *********/
@@ -48,6 +47,7 @@ class drone{
         void control_from_remote();
         void test_motor(int motor = -1);
         void calibrate(int sensor = -1);
+        void get_px4log();
 
         /********* Waypoint Methods *********/
         bool start_mission(const waypoints& mission);
