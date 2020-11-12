@@ -10,16 +10,23 @@ import game_controller
 import constants
     
 
+def eliminate_trivial(input_number):
+    if(abs(input_number) <= 0.05):
+        return 0
+    else:
+        return input_number
     
 def convert_to_proto(input_msg,rate):
 
     sendme = msgDef_pb2.msg()
     sendme.name = "any_drone"
-    sendme.offset.x = input_msg.x * rate
-    sendme.offset.y = input_msg.y * rate
-    sendme.offset.z = input_msg.z * rate * constants.HEIGHT_ADJUSTMENT
-    sendme.offset.yaw = input_msg.r * rate * constants.YAW_ADJUSTMENT
+    sendme.offset.x = eliminate_trivial(input_msg.x) * rate
+    sendme.offset.y = eliminate_trivial(input_msg.y) * rate
+    sendme.offset.z = eliminate_trivial(input_msg.z) * rate * constants.HEIGHT_ADJUSTMENT
+    sendme.offset.yaw = eliminate_trivial(input_msg.r) * rate * constants.YAW_ADJUSTMENT
     sendme.offset.rate = 1
+
+    print("X:", sendme.offset.x, " Y:", sendme.offset.y, " Z:", sendme.offset.z, " Yaw:", sendme.offset.yaw, " Max-Rate:", rate)
 
     return sendme
 
@@ -78,7 +85,6 @@ def main():
         proto_drone_movements = convert_to_proto(drone_movements,max_rate)
 
         #print and replace
-        input_print(drone_movements,max_rate)
         socket.send(proto_drone_movements.SerializeToString())
             
         continue
