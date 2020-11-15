@@ -400,8 +400,6 @@ void drone::control_from_remote(){
     land();
 }
 
-
-
 void drone::test_motor(int motor){
 
     //setup
