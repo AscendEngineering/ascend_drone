@@ -17,7 +17,6 @@
 #include <memory>
 #include <future>
 #include <math.h>
-#include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/calibration/calibration.h>
 #include <mavsdk/plugins/log_files/log_files.h>
 
@@ -230,7 +229,7 @@ void drone::manual(){
 
             std::string user_resp;
 	        LOG_S(INFO) << "Battery: "<< drone_sensors->get_battery();
-            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
+            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Smart Land \n7)Remote Control \n8)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -252,9 +251,12 @@ void drone::manual(){
                	land();
             }
             else if(user_resp=="6"){
-                control_from_remote();
+                control_from_remote(true);
             }
             else if(user_resp=="7"){
+                control_from_remote();
+            }
+            else if(user_resp=="8"){
                 land();
                 return;
             }
@@ -267,7 +269,7 @@ void drone::manual(){
     }
 }
 
-void drone::control_from_remote(){
+void drone::control_from_remote(bool april_assist){
 
     //enter manual mode
     auto offboard = std::make_shared<Offboard>(*system);
@@ -303,6 +305,9 @@ void drone::control_from_remote(){
             if(cmd_msg.has_stop_remote()){
                 LOG_S(INFO) << "Stopping remote connection";
                 remote_controlling = false;
+                if(april_assist){
+                    april_land(offboard);
+                }
                 break;
             }
             else if(cmd_msg.has_offset()){
@@ -399,7 +404,6 @@ void drone::control_from_remote(){
     }
     land();
 }
-
 
 
 void drone::test_motor(int motor){
@@ -570,6 +574,48 @@ bool drone::connect_px4(){
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
     drone_sensors = std::make_shared<px4_sensors>(telemetry);
+
+    return true;
+}
+
+bool drone::april_land(std::shared_ptr<Offboard> offboard){
+    
+    // Initialize camera
+    VideoCapture cap(0);
+    if (!cap.isOpened()) {
+        std::cerr << "Couldn't open video capture device" << std::  endl;
+        return -1;
+    }
+
+    //setup detector
+    apriltag_family_t *tf = NULL;
+    if (!strcmp(april_tag_family.c_str(), "tag36h11")) {
+        tf = tag36h11_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tag25h9")) {
+        tf = tag25h9_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tag16h5")) {
+        tf = tag16h5_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tagCircle21h7")) {
+        tf = tagCircle21h7_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tagCircle49h12")) {
+        tf = tagCircle49h12_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tagStandard41h12")) {
+        tf = tagStandard41h12_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tagStandard52h13")) {
+        tf = tagStandard52h13_create();
+    } else if (!strcmp(april_tag_family.c_str(), "tagCustom48h12")) {
+        tf = tagCustom48h12_create();
+    } else {
+        std::cerr << "Unrecognized tag family name. Use e.g. \"tag36h11\".\n" << std::endl;
+        return false;
+    }
+    apriltag_detector_t *td = apriltag_detector_create();
+    apriltag_detector_add_family(td, tf);
+    td->quad_decimate = april_decimate;
+    td->quad_sigma = april_blur;
+    td->nthreads = april_threads;
+    td->debug = april_debug;
+    td->refine_edges = april_refine_edges;
 
     return true;
 }

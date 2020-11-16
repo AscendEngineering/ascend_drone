@@ -127,5 +127,11 @@ cp archive/google_drive_key.json $HOME/.gdrive/
 gdrive --service-account google_drive_key.json
 cd ../third_party
 
+#april tag
+cd apriltag
+cmake .
+sudo make install
+cd ..
+
 
 

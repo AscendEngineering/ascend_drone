@@ -12,15 +12,32 @@ This file has all the operations that the drone can perform
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
-//#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/shell/shell.h>
+#include <mavsdk/plugins/offboard/offboard.h>
 #include "waypoints.h"
 #include <memory>
 #include "px4_sensors.h"
 #include <thread>
 #include "external_sensors.h"
+#include <opencv2/opencv.hpp>
+#include <time.h>
+
+extern "C" {
+#include <apriltag/apriltag.h>
+#include <apriltag/apriltag_pose.h>
+#include <apriltag/tag36h11.h>
+#include <apriltag/tag25h9.h>
+#include <apriltag/tag16h5.h>
+#include <apriltag/tagCircle21h7.h>
+#include <apriltag/tagCircle49h12.h>
+#include <apriltag/tagCustom48h12.h>
+#include <apriltag/tagStandard41h12.h>
+#include <apriltag/tagStandard52h13.h>
+#include <apriltag/common/getopt.h>
+}
 
 static const double YAW_FACTOR = 180.00;
+using namespace cv;
 
 class drone{
 
@@ -44,7 +61,7 @@ class drone{
         bool land();  /* DOES NOT BLOCK */
         bool kill();
         void manual();
-        void control_from_remote();
+        void control_from_remote(bool april_assist=false);
         void test_motor(int motor = -1);
         void calibrate(int sensor = -1);
         void get_px4log();
@@ -66,6 +83,7 @@ class drone{
 
         //px4
         bool connect_px4();
+        bool april_land(std::shared_ptr<Offboard> offboard);
 
         //waypoints
         enum control_cmd{
@@ -88,6 +106,15 @@ class drone{
         std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
         external_sensors sensor_group;
+
+        //april tag definitions
+        int april_debug = 0;
+        int april_quiet = 0;
+        std::string april_tag_family = "tag36h11";
+        int april_threads = 1;
+        float april_decimate = 2.0;
+        float april_blur = 0.0;
+        int april_refine_edges = 1;
         
         //coms
         zmq::context_t context;

@@ -34,6 +34,12 @@ messaging_files = Glob(messaging_lib + '*.cc')
 #misc
 misc_files = ['third_party/loguru/loguru.cpp']
 
+#opencv libraries
+opencv_libs = ['opencv_core','opencv_dnn','opencv_features2d','opencv_flann',
+    'opencv_gapi','opencv_highgui','opencv_imgcodecs','opencv_imgproc','opencv_photo',
+    'opencv_videoio','opencv_video']
+
+
 env=Environment(
     CPPDEFINES=[('LOGURU_WITH_STREAMS',1)],
     CCFLAGS=['-g',],
@@ -41,10 +47,12 @@ env=Environment(
         'mavsdk_shell','mavsdk_action',
         'mavsdk_telemetry','mavsdk_offboard', 'mavsdk_log_files',
         'mavsdk_mission','mavsdk_calibration','mavsdk_mocap',
-        'pthread','libboost_system','wiringPi','libcurl','dl'],
-	LIBPATH=['/opt/vc/lib/','/usr/local/lib/',messaging_lib],
-    CPPPATH=['include/','third_party/loguru','/usr/local/include',
-        '/usr/local/include/mavsdk',messaging_lib,doms_directory],
+        'pthread','libboost_system','wiringPi','libcurl','dl','m',
+        opencv_libs,'apriltag'],
+	LIBPATH=['/usr/local/lib','/opt/vc/lib/',messaging_lib],
+    CPPPATH=['include/','third_party/loguru','/usr/local/include/opencv4','/usr/local/include',
+        '/usr/local/include/mavsdk',messaging_lib,
+        doms_directory],
     SCONS_CXX_STANDARD='c++14')
 
 #store *.o elsewhere
