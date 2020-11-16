@@ -7,7 +7,6 @@ third_party/zeromq-4.3.2/
 third_party/go/
 third_party/archive/go*
 third_party/loguru/
-third_party/apriltag
 drone/drone
 drone/kill_drone
 *~

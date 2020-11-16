@@ -4,6 +4,3 @@
 [submodule "third_party/MAVSDK"]
 	path = third_party/MAVSDK
 	url = https://github.com/mavlink/MAVSDK.git
-[submodule "third_party/apriltag"]
-	path = third_party/apriltag
-	url = https://github.com/AprilRobotics/apriltag.git
