@@ -18,3 +18,4 @@ drone/logs/*
 drone/scripts/remote_control/__pycache__
 drone/scripts/remote_control/env/
 drone/scripts/remote_control/msgDef_pb2.pyc
+third_party_install.log
