@@ -22,7 +22,6 @@ sudo apt-get install -y xmlto
 sudo apt-get install -y libncurses5-dev libncursesw5-dev
 sudo apt-get install -y cmake build-essential colordiff git doxygen
 sudo apt-get install -y libcurl4-openssl-dev
-sudo apt-get install -y network-manager-l2tp
 
 #python stuff
 pip3 install opencv-python
@@ -129,9 +128,11 @@ cd ../third_party
 
 #april tag
 cd apriltag
-cmake .
+mkdir -p build
+cd build
+cmake ..
 sudo make install
-cd ..
+cd ../..
 
 
 
