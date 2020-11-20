@@ -19,6 +19,16 @@ std::string msg_generator::generate_heartbeat(const std::string& drone_name,
     return serialize(msg);
 }
 
+std::string msg_generator::generate_land_request(const std::string& drone_name){
+    ascend::msg msg;
+    msg.set_name(drone_name);
+    ascend::initiate_land_msg land_req;
+    land_req.set_land(true);
+    *msg.mutable_initiate_land() = land_req;
+
+    return serialize(msg);
+}
+
 
 std::string msg_generator::serialize(const ascend::msg& to_send){
 

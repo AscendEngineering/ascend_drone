@@ -24,7 +24,8 @@ drone_files = ['drone.cpp',
     'drone_msg.cpp',
     'px4_sensors.cpp',
     'external_sensors.cpp',
-    'package_control.cpp'
+    'package_control.cpp',
+    'april_land.cpp'
     ]
 
 #shared fields

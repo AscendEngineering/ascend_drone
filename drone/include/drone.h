@@ -19,25 +19,8 @@ This file has all the operations that the drone can perform
 #include "px4_sensors.h"
 #include <thread>
 #include "external_sensors.h"
-#include <opencv2/opencv.hpp>
-#include <time.h>
-
-extern "C" {
-#include <apriltag/apriltag.h>
-#include <apriltag/apriltag_pose.h>
-#include <apriltag/tag36h11.h>
-#include <apriltag/tag25h9.h>
-#include <apriltag/tag16h5.h>
-#include <apriltag/tagCircle21h7.h>
-#include <apriltag/tagCircle49h12.h>
-#include <apriltag/tagCustom48h12.h>
-#include <apriltag/tagStandard41h12.h>
-#include <apriltag/tagStandard52h13.h>
-#include <apriltag/common/getopt.h>
-}
 
 static const double YAW_FACTOR = 180.00;
-using namespace cv;
 
 class drone{
 
@@ -83,7 +66,6 @@ class drone{
 
         //px4
         bool connect_px4();
-        bool april_land(std::shared_ptr<Offboard> offboard);
 
         //waypoints
         enum control_cmd{
@@ -106,15 +88,6 @@ class drone{
         std::shared_ptr<std::thread> heartbeat_thread;
         bool simulation;
         external_sensors sensor_group;
-
-        //april tag definitions
-        int april_debug = 0;
-        int april_quiet = 0;
-        std::string april_tag_family = "tag36h11";
-        int april_threads = 1;
-        float april_decimate = 2.0;
-        float april_blur = 0.0;
-        int april_refine_edges = 1;
         
         //coms
         zmq::context_t context;
@@ -129,9 +102,5 @@ class drone{
         //misc
         void load_config_vars();
         bool send_heartbeat(double lng, double lat, double alt, double bat_percentage);
-
-        
-
-        
 
 };

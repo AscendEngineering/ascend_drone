@@ -1,5 +1,6 @@
 #include "drone.h"
 
+#include "april_land.h"
 #include "ascend_zmq.h"
 #include "constants.h"
 #include "config_handler.h"
@@ -19,6 +20,7 @@
 #include <math.h>
 #include <mavsdk/plugins/calibration/calibration.h>
 #include <mavsdk/plugins/log_files/log_files.h>
+#include <stdio.h>
 
 
 using namespace mavsdk;
@@ -54,7 +56,6 @@ drone::drone(bool in_simulation): context(1),
 
     //register with ATC
     register_with_atc();
-
 }
 
 drone::~drone(){
@@ -229,7 +230,7 @@ void drone::manual(){
 
             std::string user_resp;
 	        LOG_S(INFO) << "Battery: "<< drone_sensors->get_battery();
-            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Smart Land \n7)Remote Control \n8)Exit" << std::endl;
+            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Smart Land \n7)April Land \n8)Remote Control \n9)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -251,12 +252,40 @@ void drone::manual(){
                	land();
             }
             else if(user_resp=="6"){
+                std::string send_msg = msg_generator::generate_land_request(drone_name);
+                comm::send_msg(send_socket,drone_name,send_msg,atc_ip);
                 control_from_remote(true);
             }
             else if(user_resp=="7"){
-                control_from_remote();
+                //enter manual mode
+                auto offboard = std::make_shared<Offboard>(*system);
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                Offboard::Result offboard_result = offboard->start();
+
+                //error check
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error gaining offboard control" << std::endl;
+                    return;
+                }
+
+                //april
+                LOG_S(INFO) << "Activating April Assist";
+                april_land lander;
+                bool above_april = lander.execute(offboard,drone_sensors);
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                offboard_result = offboard->start();
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error gaining offboard control" << std::endl;
+                    return;
+                }
+                land();
             }
             else if(user_resp=="8"){
+                std::string send_msg = msg_generator::generate_land_request(drone_name);
+                comm::send_msg(send_socket,drone_name,send_msg,atc_ip);
+                control_from_remote();
+            }
+            else if(user_resp=="9"){
                 land();
                 return;
             }
@@ -306,7 +335,16 @@ void drone::control_from_remote(bool april_assist){
                 LOG_S(INFO) << "Stopping remote connection";
                 remote_controlling = false;
                 if(april_assist){
-                    april_land(offboard);
+                    LOG_S(INFO) << "Activating April Assist";
+                    april_land lander;
+                    bool above_april = lander.execute(offboard,drone_sensors);
+                    if(above_april){
+                        LOG_S(INFO) << "Killing Motors";
+                        land();
+                    }
+                    else{
+                        LOG_S(INFO) << "April Failed";
+                    }
                 }
                 break;
             }
@@ -402,7 +440,9 @@ void drone::control_from_remote(bool april_assist){
     if(offboard_result != Offboard::Result::Success){
         std::cerr << "Error stopping offboard control" << std::endl;
     }
-    land();
+
+    //make sure ffmpeg is closed
+    FILE* kill_ffmpeg = popen("pkill -f ffmpeg","r");
 }
 
 
@@ -574,48 +614,6 @@ bool drone::connect_px4(){
     telemetry = std::make_shared<Telemetry>(*system);
     action = std::make_shared<Action>(*system);
     drone_sensors = std::make_shared<px4_sensors>(telemetry);
-
-    return true;
-}
-
-bool drone::april_land(std::shared_ptr<Offboard> offboard){
-    
-    // Initialize camera
-    VideoCapture cap(0);
-    if (!cap.isOpened()) {
-        std::cerr << "Couldn't open video capture device" << std::  endl;
-        return -1;
-    }
-
-    //setup detector
-    apriltag_family_t *tf = NULL;
-    if (!strcmp(april_tag_family.c_str(), "tag36h11")) {
-        tf = tag36h11_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tag25h9")) {
-        tf = tag25h9_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tag16h5")) {
-        tf = tag16h5_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tagCircle21h7")) {
-        tf = tagCircle21h7_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tagCircle49h12")) {
-        tf = tagCircle49h12_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tagStandard41h12")) {
-        tf = tagStandard41h12_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tagStandard52h13")) {
-        tf = tagStandard52h13_create();
-    } else if (!strcmp(april_tag_family.c_str(), "tagCustom48h12")) {
-        tf = tagCustom48h12_create();
-    } else {
-        std::cerr << "Unrecognized tag family name. Use e.g. \"tag36h11\".\n" << std::endl;
-        return false;
-    }
-    apriltag_detector_t *td = apriltag_detector_create();
-    apriltag_detector_add_family(td, tf);
-    td->quad_decimate = april_decimate;
-    td->quad_sigma = april_blur;
-    td->nthreads = april_threads;
-    td->debug = april_debug;
-    td->refine_edges = april_refine_edges;
 
     return true;
 }

@@ -18,6 +18,7 @@ namespace msg_generator {
                                       double lat, 
                                       double alt, 
                                       double bat_percentage);
+        std::string generate_land_request(const std::string& drone_name);
 
         std::string serialize(const ascend::msg& to_send);
         ascend::msg deserialize(const std::string& recv);
