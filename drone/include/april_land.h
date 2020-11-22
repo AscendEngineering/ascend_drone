@@ -4,6 +4,7 @@
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <opencv2/opencv.hpp>
 #include <time.h>
+#include "loguru.hpp"
 
 #include "px4_sensors.h"
 

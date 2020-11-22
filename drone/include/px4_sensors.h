@@ -19,7 +19,7 @@ using distance = mavsdk::Telemetry::DistanceSensor;
     //maximum_distance_m
     //current_distance_m
 
-#define TFMINI_ENABLED 1
+#define TFMINI_ENABLED 0
 
 class px4_sensors{
 

@@ -147,22 +147,18 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
             float rate = rate_calculator(altitude);
 
             //april center calculation
-            printf("X CENTER OF APRIL: %f", det_final->c[0]);
-            printf("\n");
-            printf("Y CENTER OF APRIL: %f", det_final->c[1]);           
-            printf("\n");
+            LOG_S(INFO)<< "X CENTER OF APRIL: " << det_final->c[0];
+            LOG_S(INFO)<< "Y CENTER OF APRIL: " << det_final->c[1];          
             //distance in pixels
-            int distance = 400;
+            int distance = 150;
             
             //X and Y VALUES DECLARED HERE
             int x = april_mover_x(frame_x_center, det_final->c[0], distance);
             int y = april_mover_y(frame_y_center, det_final->c[1], distance);
             //****************************
 
-            printf("X integer: %i", x);
-            printf("\n");
-            printf("Y integer: %i", y);
-            printf("\n");
+            LOG_S(INFO)<< "X integer: " << x;
+            LOG_S(INFO)<< "Y integer: " << y;
 
             apriltag_detection_info_t info;
             info.tagsize = .1;
@@ -192,18 +188,16 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
             double roll = atan2(-z2, z3) * val;
             double pitch = asin(z1) * val;
             double yaw_percentage = atan2(-y1, x1) * val;
-            printf("Yaw val: %f", yaw_percentage);            
-            printf("\n");
+            LOG_S(INFO)<< "Yaw val: " << yaw_percentage; 
 
             //YAW VALUE DECLARED HERE
             int yaw = april_mover_yaw(yaw_percentage, x, y);
             //**********************
 
             
-            printf("Yaw integer: %i", yaw);
-            printf("\n");
-            printf("Altitude: %f\n",altitude);
-            printf("Rate: %f\n", rate);
+            LOG_S(INFO)<< "Yaw integer: " << yaw;
+            LOG_S(INFO)<< "Altitude: " << altitude;
+            LOG_S(INFO)<< "Rate: " << rate;
 
             //Z VALUE DECLARED HERE            
             int z = april_mover_z(x, y, altitude);
@@ -230,7 +224,7 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
 
             if(timer_differential >= 2.0){
             //   drone_land; <-- meant to be what calls land
-                std::cout << "Landing" << std::endl;
+                LOG_S(INFO) << "Landing";
                 move_down = true;
                 break;
             }
@@ -240,11 +234,8 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
             if(x != 0 && y != 0 && altitude > 1.5){
                 timer_differential = 0;
             }
-            printf("Z: %f", real_z);
-            printf("\n");
-            printf("Timer Differential: %f", timer_differential);
-            printf("\n");
-            printf("\n");
+            LOG_S(INFO)<< "Z: " << real_z;
+            LOG_S(INFO)<< "Timer Differential: " << timer_differential << "\n";
         }
         apriltag_detections_destroy(detections);
         
