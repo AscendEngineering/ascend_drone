@@ -12,8 +12,8 @@ This file has all the operations that the drone can perform
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
-//#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/shell/shell.h>
+#include <mavsdk/plugins/offboard/offboard.h>
 #include "waypoints.h"
 #include <memory>
 #include "px4_sensors.h"
@@ -44,7 +44,7 @@ class drone{
         bool land();  /* DOES NOT BLOCK */
         bool kill();
         void manual();
-        void control_from_remote();
+        void control_from_remote(bool april_assist=false);
         void test_motor(int motor = -1);
         void calibrate(int sensor = -1);
         void get_px4log();
@@ -102,9 +102,5 @@ class drone{
         //misc
         void load_config_vars();
         bool send_heartbeat(double lng, double lat, double alt, double bat_percentage);
-
-        
-
-        
 
 };

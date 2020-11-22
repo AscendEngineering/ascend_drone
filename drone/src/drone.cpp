@@ -1,5 +1,6 @@
 #include "drone.h"
 
+#include "april_land.h"
 #include "ascend_zmq.h"
 #include "constants.h"
 #include "config_handler.h"
@@ -17,9 +18,9 @@
 #include <memory>
 #include <future>
 #include <math.h>
-#include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/calibration/calibration.h>
 #include <mavsdk/plugins/log_files/log_files.h>
+#include <stdio.h>
 
 
 using namespace mavsdk;
@@ -55,7 +56,6 @@ drone::drone(bool in_simulation): context(1),
 
     //register with ATC
     register_with_atc();
-
 }
 
 drone::~drone(){
@@ -230,7 +230,7 @@ void drone::manual(){
 
             std::string user_resp;
 	        LOG_S(INFO) << "Battery: "<< drone_sensors->get_battery();
-            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Remote Control \n7)Exit" << std::endl;
+            std::cerr << "Next Operation: \n1)Takeoff \n2)Manual \n3)Magenet On \n4)Magnet Off \n5)Land \n6)Smart Land \n7)April Land \n8)Remote Control \n9)Exit" << std::endl;
             std::cin >> user_resp;
 
             if(user_resp == "1"){
@@ -252,9 +252,40 @@ void drone::manual(){
                	land();
             }
             else if(user_resp=="6"){
-                control_from_remote();
+                std::string send_msg = msg_generator::generate_land_request(drone_name);
+                comm::send_msg(send_socket,drone_name,send_msg,atc_ip);
+                control_from_remote(true);
             }
             else if(user_resp=="7"){
+                //enter manual mode
+                auto offboard = std::make_shared<Offboard>(*system);
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                Offboard::Result offboard_result = offboard->start();
+
+                //error check
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error gaining offboard control" << std::endl;
+                    return;
+                }
+
+                //april
+                LOG_S(INFO) << "Activating April Assist";
+                april_land lander;
+                bool above_april = lander.execute(offboard,drone_sensors);
+                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                offboard_result = offboard->start();
+                if(offboard_result != Offboard::Result::Success){
+                    std::cerr << "Error gaining offboard control" << std::endl;
+                    return;
+                }
+                land();
+            }
+            else if(user_resp=="8"){
+                std::string send_msg = msg_generator::generate_land_request(drone_name);
+                comm::send_msg(send_socket,drone_name,send_msg,atc_ip);
+                control_from_remote();
+            }
+            else if(user_resp=="9"){
                 land();
                 return;
             }
@@ -267,7 +298,7 @@ void drone::manual(){
     }
 }
 
-void drone::control_from_remote(){
+void drone::control_from_remote(bool april_assist){
 
     //enter manual mode
     auto offboard = std::make_shared<Offboard>(*system);
@@ -303,6 +334,18 @@ void drone::control_from_remote(){
             if(cmd_msg.has_stop_remote()){
                 LOG_S(INFO) << "Stopping remote connection";
                 remote_controlling = false;
+                if(april_assist){
+                    LOG_S(INFO) << "Activating April Assist";
+                    april_land lander;
+                    bool above_april = lander.execute(offboard,drone_sensors);
+                    if(above_april){
+                        LOG_S(INFO) << "Killing Motors";
+                        land();
+                    }
+                    else{
+                        LOG_S(INFO) << "April Failed";
+                    }
+                }
                 break;
             }
             else if(cmd_msg.has_offset()){
@@ -397,9 +440,10 @@ void drone::control_from_remote(){
     if(offboard_result != Offboard::Result::Success){
         std::cerr << "Error stopping offboard control" << std::endl;
     }
-    land();
-}
 
+    //make sure ffmpeg is closed
+    FILE* kill_ffmpeg = popen("pkill -f ffmpeg","r");
+}
 
 
 void drone::test_motor(int motor){

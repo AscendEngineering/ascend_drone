@@ -39,19 +39,6 @@ function install {
     sudo apt-get install -y htop ripgrep openssh-server ffmpeg libboost-all-dev
     sudo apt-get install -y libopencv-dev
 
-    #sudmodules
-    #cd ../
-    #git submodule update --init --recursive
-    #cd third_party 
-
-    #tunneling for mobile connection
-    #mkdir -p remotit
-    #cd remoteit
-    #curl -LkO https://raw.githubusercontent.com/remoteit/installer/master/scripts/auto-install.sh
-    #chmod +x ./auto-install.sh
-    #sudo ./auto-install.sh
-    #cd ..
-
     #zeromq
     cd zeromq-4.3.2
     ./autogen.sh
@@ -104,42 +91,22 @@ function install {
     sudo ldconfig 
     cd ..
 
-    #setup go
-    cd archive
-    wget https://golang.org/dl/go1.15.4.linux-armv6l.tar.gz
-    cd ..
-    sudo tar -C /usr/local -xzf archive/go1.15.4.tar.gz
-    echo >> $HOME/.profile
-    echo "#Go & gdrive"  >> $HOME/.profile
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-    mkdir -p $HOME/build
-    echo 'export GOPATH=$HOME/build/go' >> $HOME/.profile
-    source $HOME/.profile
-
-    #gdrive
-    #go get github.com/prasmussen/gdrive
-    #echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.profile
-    #source $HOME/.profile
-
-    #loging purposes
+    #logging purposes
     cd ../drone
     mkdir -p logs
     mkdir -p $HOME/.gdrive
     cp archive/google_drive_key.json $HOME/.gdrive/
     gdrive --service-account google_drive_key.json
     cd ../third_party
-
-    #opencv
-    #mkdir -p opencv
-    #cd opencv
-    #wget -O opencv.zip https://github.com/opencv/opencv/archive/master.zip
-    #unzip opencv.zip
-    #mkdir -p build && cd build
-    #cmake -D CMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_java=OFF -DBUILD_opencv_js=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_objdetect=OFF -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_GTK=ON -D WITH_OPENGL=ON ../opencv-master
-    #cmake --build .
-    #sudo make install
-    #cd ../..
     
+    #april tag
+    cd apriltag
+    mkdir -p build
+    cd build
+    cmake ..
+    sudo make install
+    cd ../..
+
     #vim 
     cp .vimrc ~/
 }
