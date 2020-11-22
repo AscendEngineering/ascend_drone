@@ -1,138 +1,114 @@
 #go into archives and extract all
 
-for FILE in $(ls archive)
-do
-    tar -xzf archive/$FILE
-done
+function install {
+    for FILE in $(ls archive)
+    do
+        tar -xzf archive/$FILE
+    done
 
+    #enable serial
+    sudo sh -c 'echo "enable_uart=1" >> /boot/config.txt'
 
-#raspberry pi specific
-sudo apt-get install -y libraspberrypi-dev raspberrypi-kernel-headers
-sudo apt-get purge -y wolfram-engine
-sudo apt-get purge -y libreoffice*
-sudo apt-get clean
-sudo apt-get autoremove
+    #raspberry pi specific
+    sudo apt-get install -y libraspberrypi-dev raspberrypi-kernel-headers
+    sudo apt-get purge -y wolfram-engine
+    sudo apt-get purge -y libreoffice*
+    sudo apt-get -y clean
+    sudo apt-get -y autoremove
 
-#do what we can with apt-get
-sudo apt-get update
-sudo apt-get install -y autoconf automake cmake libtool curl make g++ unzip vim
-sudo apt-get install -y scons
-sudo apt-get install -y libtool-bin=2.4.6-9
-sudo apt-get install -y xmlto
-sudo apt-get install -y libncurses5-dev libncursesw5-dev
-sudo apt-get install -y cmake build-essential colordiff git doxygen
-sudo apt-get install -y libcurl4-openssl-dev
+    #do what we can with apt-get
+    sudo apt-get -y update
+    sudo apt-get install -y autoconf automake cmake libtool curl make g++ unzip vim wget
+    sudo apt-get install -y scons
+    sudo apt-get install -y libtool-bin=2.4.6-9
+    sudo apt-get install -y xmlto
+    sudo apt-get install -y libncurses5-dev libncursesw5-dev
+    sudo apt-get install -y cmake build-essential colordiff git doxygen
+    sudo apt-get install -y libcurl4-openssl-dev
 
-#python stuff
-pip3 install opencv-python
-sudo apt-get install -y libatlas-base-dev
-sudo apt-get install -y libjasper-dev
-sudo apt-get install -y libqtgui4
-sudo apt-get install -y python3-pyqt5
-sudo apt-get install -y libqt4-test
-sudo apt-get install -y libhdf5-dev
-sudo apt-get install -y libhdf5-serial-dev
+    #python stuff
+    sudo apt-get install -y libatlas-base-dev
+    sudo apt-get install -y libjasper-dev
+    sudo apt-get install -y libqtgui4
+    sudo apt-get install -y python3-pyqt5
+    sudo apt-get install -y libqt4-test
+    sudo apt-get install -y libhdf5-dev
+    sudo apt-get install -y libhdf5-serial-dev
 
-#misc
-sudo apt-get install -y htop ripgrep openssh-server ffmpeg libboost-all-dev
+    #misc
+    sudo apt-get install -y htop ripgrep openssh-server ffmpeg libboost-all-dev
+    sudo apt-get install -y libopencv-dev
 
-#sudmodules
-#cd ../
-#git submodule update --init --recursive
-#cd third_party 
+    #zeromq
+    cd zeromq-4.3.2
+    ./autogen.sh
+    ./configure
+    make
+    sudo make install 
+    cd ..
+    
+    #cppzmq
+    cd cppzmq-4.5.0
+    mkdir -p build
+    cd build
+    cmake ..
+    sudo make -j4 install
+    cd ../../
 
-#tunneling for mobile connection
-#mkdir -p remotit
-#cd remoteit
-#curl -LkO https://raw.githubusercontent.com/remoteit/installer/master/scripts/auto-install.sh
-#chmod +x ./auto-install.sh
-#sudo ./auto-install.sh
-#cd ..
+    #protobuf
+    cd protobuf-3.11.2
+    ./configure
+    make
+    sudo make install
+    sudo ldconfig 
+    cd ..
 
-#zeromq
-cd zeromq-4.3.2
-./autogen.sh
-./configure
-make
-sudo make install 
-cd ..
-  
-#cppzmq
-cd cppzmq-4.5.0
-mkdir -p build
-cd build
-cmake ..
-sudo make -j4 install
-cd ../../
+    #raspicam
+    cd raspicam
+    mkdir build
+    cd build
+    cmake ..
+    make
+    sudo make install
+    sudo ldconfig
+    cd ../..
 
-#protobuf
-cd protobuf-3.11.2
-./configure
-make
-sudo make install
-sudo ldconfig 
-cd ..
+    #cxxopts
+    cd cxxopts-2.2.0
+    mkdir build
+    cd build
+    cmake ..
+    make
+    sudo make install
+    sudo ldconfig
+    cd ../..
 
-#raspicam
-cd raspicam
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-cd ../..
+    #mavlink sdk
+    cd MAVSDK
+    git submodule update --init --recursive
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -Bbuild/default -H.
+    sudo cmake --build build/default --target install
+    sudo ldconfig 
+    cd ..
 
-#cxxopts
-cd cxxopts-2.2.0
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-cd ../..
+    #logging purposes
+    cd ../drone
+    mkdir -p logs
+    mkdir -p $HOME/.gdrive
+    cp archive/google_drive_key.json $HOME/.gdrive/
+    gdrive --service-account google_drive_key.json
+    cd ../third_party
+    
+    #april tag
+    cd apriltag
+    mkdir -p build
+    cd build
+    cmake ..
+    sudo make install
+    cd ../..
 
-#mavlink sdk
-cd MAVSDK
-git submodule update --init --recursive
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -Bbuild/default -H.
-sudo cmake --build build/default --target install
-sudo ldconfig 
-cd ..
+    #vim 
+    cp .vimrc ~/
+}
 
-#setup go
-cd archive
-wget https://golang.org/dl/go1.15.4.linux-armv6l.tar.gz
-cd ..
-sudo tar -C /usr/local -xzf archive/go1.15.4.tar.gz
-echo >> $HOME/.profile
-echo "#Go & gdrive"  >> $HOME/.profile
-echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
-mkdir -p $HOME/build
-echo 'export GOPATH=$HOME/build/go' >> $HOME/.profile
-source $HOME/.profile
-
-#gdrive
-go get github.com/prasmussen/gdrive
-echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.profile
-source $HOME/.profile
-
-#loging purposes
-cd ../drone
-mkdir -p logs
-mkdir -p $HOME/.gdrive
-cp archive/google_drive_key.json $HOME/.gdrive/
-gdrive --service-account google_drive_key.json
-cd ../third_party
-
-#april tag
-cd apriltag
-mkdir -p build
-cd build
-cmake ..
-sudo make install
-cd ../..
-
-
-
+install | tee third_party_install.log
