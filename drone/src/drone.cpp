@@ -359,28 +359,7 @@ void drone::control_from_remote(bool april_assist){
 
                 //stop if needed
                 LOG_S(INFO) << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
-                if(offboard->is_active()){
-                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
-                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
-                        offboard_result = offboard->stop();
-                        LOG_S(INFO) << "Holding..."<< std::endl;
-                        continue;
-                    }
-                    else{
-                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
-                    }
-                }
-                else{
-                    if(x==0.0 && y==0.0 && z==0.0 && yaw==0.0){
-                        continue;
-                    }
-                    else{
-                        offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
-                        Offboard::Result offboard_result = offboard->start();
-                        offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
-                        LOG_S(INFO) << "Resuming..."<< std::endl;
-                    }
-                }
+                offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
             }
             else if(cmd_msg.has_action_cmd()){
                 //stop offboard
