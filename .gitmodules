@@ -1,6 +1,3 @@
-[submodule "ascend_doms"]
-	path = third_party/ascend_doms
-	url = https://github.com/afwilkin/ascend_doms.git
 [submodule "third_party/MAVSDK"]
 	path = third_party/MAVSDK
 	url = https://github.com/mavlink/MAVSDK.git
