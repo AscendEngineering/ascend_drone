@@ -26,6 +26,7 @@ class buttons:
     pickup = 0
     dropoff = 0
     rate = 1.0
+    arm = 0
 
 def now_milli():
     return int(round(time.time()*1000))
@@ -53,6 +54,8 @@ def get_inputs():
                         global_dict["x"] = normalize_joystick(event.state)
                     elif(event.code=="ABS_Z"):
                         global_dict["r"] = normalize_joystick(event.state)
+                    elif(event.code=="ABS_HAT0Y"):
+                        global_dict["arm"] = abs(event.state)
 
                 elif(event.ev_type == "Key"):
                     if(event.code == "BTN_BASE"):
@@ -75,6 +78,8 @@ def get_inputs():
                         global_dict["kill1"] = event.state
                     elif(event.code == "BTN_BASE4"):
                         global_dict["kill2"] = event.state
+                    else:
+                        print(event.code,event.state)
 
 
 def controls_to_proto(input_msg):
@@ -183,6 +188,11 @@ def main():
                         global_buttons.dropoff = 0
                     elif(global_buttons.dropoff==0):
                         global_buttons.dropoff = now_milli()
+                elif(key=='arm'):
+                    if(val==0):
+                        global_buttons.arm = 0
+                    elif(global_buttons.arm==0):
+                        global_buttons.arm = now_milli()
 
             #send
             if(not same_input(drone_movements,last_movement)):
@@ -203,24 +213,29 @@ def main():
             print("Kill")
         if((global_buttons.takeoff > 0) and (now-global_buttons.takeoff > 1000)):
             global_buttons.takeoff = 0
-            kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.TAKEOFF)
-            socket.send(kill_cmd.SerializeToString())
+            takeoff_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.TAKEOFF)
+            socket.send(takeoff_cmd.SerializeToString())
             print("Takeoff")
         if((global_buttons.land > 0) and (now-global_buttons.land > 1000)):
             global_buttons.land = 0
-            kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.LAND)
-            socket.send(kill_cmd.SerializeToString())
+            land_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.LAND)
+            socket.send(land_cmd.SerializeToString())
             print("Land")
         if((global_buttons.pickup > 0) and (now-global_buttons.pickup > 1000)):
             global_buttons.pickup = 0
-            kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.PICKUP)
-            socket.send(kill_cmd.SerializeToString())
+            pickup_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.PICKUP)
+            socket.send(pickup_cmd.SerializeToString())
             print("Pickup")
         if((global_buttons.dropoff > 0) and (now-global_buttons.dropoff > 1000)):
             global_buttons.dropoff = 0
-            kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.DROPOFF)
-            socket.send(kill_cmd.SerializeToString())
+            dropoff_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.DROPOFF)
+            socket.send(dropoff_cmd.SerializeToString())
             print("Dropoff")
+        if((global_buttons.arm > 0) and (now-global_buttons.arm > 1500)):
+            global_buttons.arm = 0
+            arm_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.ARM)
+            socket.send(arm_cmd.SerializeToString())
+            print("Arm")
 
 if __name__ == "__main__":
     main()

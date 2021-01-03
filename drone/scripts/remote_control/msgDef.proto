@@ -9,6 +9,7 @@ enum action_cmd_enum{
   PICKUP = 3;
   DROPOFF = 4;
   KILL = 5;
+  ARM = 6;
 }
 
 message heartbeat_msg {
