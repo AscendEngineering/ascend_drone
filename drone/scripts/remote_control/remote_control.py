@@ -19,13 +19,16 @@ class movement_axis:
     rate=0.5
 
 class buttons:
-    kill1 = False
-    kill2 = False
+    kill1 = 0
+    kill2 = 0
     takeoff = 0
     land = 0
     pickup = 0
     dropoff = 0
     rate = 1.0
+
+def now_milli():
+    return int(round(time.time()*1000))
 
 def normalize_joystick(value):
 	return round((value - 127)/127,2)
@@ -151,29 +154,35 @@ def main():
                 elif(key=='rate'):
                     drone_movements.rate = val
                 elif(key=='kill1'):
-                    global_buttons.kill1 = val
+                    if(val==0):
+                        global_buttons.kill1 = 0
+                    elif(global_buttons.kill1==0):
+                        global_buttons.kill1 = now_milli()
                 elif(key=='kill2'):
-                    global_buttons.kill2 = val
+                    if(val==0):
+                        global_buttons.kill2 = 0
+                    elif(global_buttons.kill2==0):
+                        global_buttons.kill2 = now_milli()
                 elif(key=='takeoff'):
                     if(val==0):
                         global_buttons.takeoff = 0
                     elif(global_buttons.takeoff==0):
-                        global_buttons.takeoff = time.time()
+                        global_buttons.takeoff = now_milli()
                 elif(key=='land'):
                     if(val==0):
                         global_buttons.land = 0
                     elif(global_buttons.land==0):
-                        global_buttons.land = time.time()
+                        global_buttons.land = now_milli()
                 elif(key=='pickup'):
                     if(val==0):
                         global_buttons.pickup = 0
                     elif(global_buttons.pickup==0):
-                        global_buttons.pickup = time.time()
+                        global_buttons.pickup = now_milli()
                 elif(key=='dropoff'):
                     if(val==0):
                         global_buttons.dropoff = 0
                     elif(global_buttons.dropoff==0):
-                        global_buttons.dropoff = time.time()
+                        global_buttons.dropoff = now_milli()
 
             #send
             if(not same_input(drone_movements,last_movement)):
@@ -182,27 +191,32 @@ def main():
                 last_movement = drone_movements
 
         #do checks here
-        now = time.time()
-        if(global_buttons.kill1 and global_buttons.kill2):
+        now = now_milli()
+        if(global_buttons.kill1 > 0 
+            and global_buttons.kill2 > 0
+            and (now-global_buttons.kill1) > 500
+            and (now-global_buttons.kill2) > 500):
+            global_buttons.kill1 = 0
+            global_buttons.kill2 = 0
             kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.KILL)
             socket.send(kill_cmd.SerializeToString())
             print("Kill")
-        if((global_buttons.takeoff > 0) and (now-global_buttons.takeoff > 1)):
+        if((global_buttons.takeoff > 0) and (now-global_buttons.takeoff > 1000)):
             global_buttons.takeoff = 0
             kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.TAKEOFF)
             socket.send(kill_cmd.SerializeToString())
             print("Takeoff")
-        if((global_buttons.land > 0) and (now-global_buttons.land > 1)):
+        if((global_buttons.land > 0) and (now-global_buttons.land > 1000)):
             global_buttons.land = 0
             kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.LAND)
             socket.send(kill_cmd.SerializeToString())
             print("Land")
-        if((global_buttons.pickup > 0) and (now-global_buttons.pickup > 1)):
+        if((global_buttons.pickup > 0) and (now-global_buttons.pickup > 1000)):
             global_buttons.pickup = 0
             kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.PICKUP)
             socket.send(kill_cmd.SerializeToString())
             print("Pickup")
-        if((global_buttons.dropoff > 0) and (now-global_buttons.dropoff > 1)):
+        if((global_buttons.dropoff > 0) and (now-global_buttons.dropoff > 1000)):
             global_buttons.dropoff = 0
             kill_cmd = command_to_proto(msgDef_pb2.action_cmd_enum.DROPOFF)
             socket.send(kill_cmd.SerializeToString())
