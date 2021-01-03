@@ -48,8 +48,8 @@ drone::drone(bool in_simulation): context(1),
     recv_socket.bind("tcp://*:" + constants::to_drone);
     comm_items[0] = {static_cast<void*>(recv_socket),0,ZMQ_POLLIN,0};
     int linger_time = 1000;
-    zmq_setsockopt(send_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
-    zmq_setsockopt(recv_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
+    zmq_setsockopt(&send_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
+    zmq_setsockopt(&recv_socket,ZMQ_LINGER,&linger_time, sizeof(linger_time));
 
     //set up drone vehicle
     connect_px4();
@@ -362,6 +362,7 @@ void drone::control_from_remote(bool april_assist){
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
             }
             else if(cmd_msg.has_action_cmd()){
+                
                 //stop offboard
                 offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
                 offboard_result = offboard->stop();

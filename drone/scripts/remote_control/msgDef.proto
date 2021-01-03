@@ -5,8 +5,10 @@ package ascend;
 enum action_cmd_enum{
   TAKEOFF = 0;
   LAND = 1;
-  PICKUP_PACKAGE = 2;
-  DROPOFF_PACKAGE = 3;
+  APRIL_LAND=2;
+  PICKUP = 3;
+  DROPOFF = 4;
+  KILL = 5;
 }
 
 message heartbeat_msg {
@@ -32,6 +34,10 @@ message action_cmd_msg {
   required action_cmd_enum cmd = 1;
 }
 
+message initiate_land_msg {
+  required bool land = 1;
+}
+
 message msg {
   required string name = 1;
   oneof type {
@@ -39,5 +45,6 @@ message msg {
     move_offset offset = 6;
     stop_remote_conn stop_remote = 11;
     action_cmd_msg action_cmd = 12;
+    initiate_land_msg initiate_land = 13;
   }
-}   
+}     
