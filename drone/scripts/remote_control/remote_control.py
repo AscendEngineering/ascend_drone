@@ -3,7 +3,6 @@ import argparse
 import zmq
 import time
 import inputs
-import game_controller
 import constants 
 import threading
 import signal
