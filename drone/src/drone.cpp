@@ -379,10 +379,10 @@ void drone::control_from_remote(bool april_assist){
                 else if(cmd==ascend::LAND){
                     land();
                 }
-                else if(cmd==ascend::PICKUP_PACKAGE){
+                else if(cmd==ascend::PICKUP){
                     package_control::get_instance().pickup();
                 }
-                else if(cmd==ascend::DROPOFF_PACKAGE){
+                else if(cmd==ascend::DROPOFF){
                     package_control::get_instance().release();
                 }
 
