@@ -11,6 +11,11 @@ import asyncio
 global_dict = {"rate": 1.0}
 global_lock = threading.RLock()
 
+RATE_INCREMENT=0.2
+MAX_ACC=0.5
+YAW_ADJUSTMENT=5
+HEIGHT_ADJUSTMENT=0.2
+
 class movement_axis:
     x=0.0
     y=0.0
@@ -78,8 +83,6 @@ def get_inputs():
                         global_dict["kill1"] = event.state
                     elif(event.code == "BTN_BASE4"):
                         global_dict["kill2"] = event.state
-                    else:
-                        print(event.code,event.state)
 
 
 def controls_to_proto(input_msg):
