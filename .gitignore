@@ -10,9 +10,7 @@ third_party/loguru/
 drone/drone
 drone/kill_drone
 *~
-drone/config.txt
 *.swp
-config.txt
 drone_settings.txt
 drone/logs/*
 drone/scripts/remote_control/__pycache__
