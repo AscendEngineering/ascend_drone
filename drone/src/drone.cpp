@@ -385,6 +385,9 @@ void drone::control_from_remote(bool april_assist){
                 else if(cmd==ascend::DROPOFF){
                     package_control::get_instance().release();
                 }
+                else if(cmd==ascend::KILL){
+                    kill();
+                }
 
                 //retart offboard
                 offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
@@ -394,7 +397,6 @@ void drone::control_from_remote(bool april_assist){
                     return;
                 }
                 utilities::line_buffer(false);
-
             }
         }
 
