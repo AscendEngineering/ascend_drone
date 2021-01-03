@@ -172,8 +172,6 @@ bool drone::arm(){
     //arm
     const Action::Result arm_result = action->arm();
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-
     if(arm_result != Action::Result::Success){
         return false;
     }
@@ -351,13 +349,23 @@ void drone::control_from_remote(bool april_assist){
             else if(cmd_msg.has_offset()){
                 ascend::move_offset landing_cmd =  cmd_msg.offset();
 
+                //reinitiate offboard if needed
+                if(!offboard->is_active()){
+                    offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
+                    Offboard::Result offboard_result = offboard->start();
+                    if(offboard_result != Offboard::Result::Success){
+                        std::cerr << "Error gaining offboard control" << std::endl;
+                        return;
+                    }
+                }
+
                 float x = landing_cmd.x();
                 float y = landing_cmd.y();
                 float z = landing_cmd.z();
                 float yaw = landing_cmd.yaw();
                 float rate = landing_cmd.rate();
 
-                //stop if needed
+                //send cmd
                 LOG_S(INFO) << "Command-> X:" << x << " Y:"<< y << " Z:" << z << " Yaw:" << yaw << " Rate:" << rate << std::endl;
                 offboard->set_velocity_body({y*rate, x*rate, z*rate, ::adjust_yaw(yaw,rate)});
             }
@@ -388,14 +396,10 @@ void drone::control_from_remote(bool april_assist){
                 else if(cmd==ascend::KILL){
                     kill();
                 }
-
-                //retart offboard
-                offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
-                Offboard::Result offboard_result = offboard->start();
-                if(offboard_result != Offboard::Result::Success){
-                    std::cerr << "Error gaining offboard control" << std::endl;
-                    return;
+                else if(cmd==ascend::ARM){
+                    arm();
                 }
+
                 utilities::line_buffer(false);
             }
         }
@@ -404,9 +408,9 @@ void drone::control_from_remote(bool april_assist){
         auto current_time = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_time = current_time-last_heartbeat;
         if(elapsed_time.count() > 0.5){
-            velocity curr_vel = drone_sensors->get_velocity();
-            LOG_S(INFO) << "north_m_s: " << curr_vel.north_m_s << " east_m_s: " << curr_vel.east_m_s << " down_m_s: " << curr_vel.down_m_s << std::endl;
-            send_heartbeat();
+            // velocity curr_vel = drone_sensors->get_velocity();
+            // LOG_S(INFO) << "north_m_s: " << curr_vel.north_m_s << " east_m_s: " << curr_vel.east_m_s << " down_m_s: " << curr_vel.down_m_s << std::endl;
+            // send_heartbeat();
             last_heartbeat = std::chrono::system_clock::now();
         }
     }
