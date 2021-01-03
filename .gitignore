@@ -13,6 +13,8 @@ drone/kill_drone
 *.swp
 drone_settings.txt
 drone/logs/*
+drone/config.txt
+drone/drone_config.txt
 drone/scripts/remote_control/__pycache__
 drone/scripts/remote_control/env/
 drone/scripts/remote_control/msgDef_pb2.pyc
