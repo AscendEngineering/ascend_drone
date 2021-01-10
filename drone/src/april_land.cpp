@@ -1,8 +1,10 @@
 #include "april_land.h"
+#include <eigen3/Eigen/Eigen>
 #include <sstream>
 #include <stdio.h>
 #include <thread> 
-#include <chrono>  
+#include <chrono> 
+#include <cmath> 
 
 namespace {
     float adjust_yaw(float in_yaw, float rate){
@@ -189,6 +191,14 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
             double pitch = asin(z1) * val;
             double yaw_percentage = atan2(-y1, x1) * val;
             LOG_S(INFO)<< "Yaw val: " << yaw_percentage; 
+
+            Eigen::Vector3d translation;
+            translation(0) = pose.t->data[0];
+            translation(1) = pose.t->data[1];
+            translation(2) = pose.t->data[2];
+
+            double distance = translation.norm();
+            std::cout << "distance from april (in meters): " << distance << endl;
 
             //YAW VALUE DECLARED HERE
             int yaw = april_mover_yaw(yaw_percentage, x, y);

@@ -65,6 +65,14 @@ function install {
     sudo ldconfig 
     cd ..
 
+    #eigen
+    cd eigen-3.3.9
+    mkdir build
+    cd build
+    cmake ..
+    sudo make install
+    cd ..
+
     #raspicam
     cd raspicam
     mkdir build
