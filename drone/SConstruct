@@ -12,7 +12,7 @@ messaging_def = messaging_directory+'definitions/'
 #create proto files
 if(os.path.isdir(messaging_directory)):
     subprocess.check_call(["mkdir","-p", messaging_directory+"libs"])
-    subprocess.check_call("protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'msgDef.proto', shell=True)
+    subprocess.check_call("third_party/protobuf-3.11.2/src/protoc -I=" + messaging_def + " --cpp_out=" + messaging_lib + " " + messaging_def+'msgDef.proto', shell=True)
 else:
     print("SUBMODULES NEED TO BE PULLED, EXECUTE IN TOP DIRECTORY: \"git submodule update --init --recursive\"")
     exit(1)
@@ -53,7 +53,7 @@ env=Environment(
 	LIBPATH=['/usr/local/lib','/opt/vc/lib/',messaging_lib],
     CPPPATH=['include/','third_party/loguru','/usr/local/include/opencv4','/usr/local/include',
         '/usr/local/include/mavsdk',messaging_lib,
-        doms_directory],
+        doms_directory,'third_party/protobuf-3.11.2/src'],
     SCONS_CXX_STANDARD='c++14')
 
 #store *.o elsewhere

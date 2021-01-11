@@ -61,7 +61,6 @@ function install {
     cd protobuf-3.11.2
     ./configure
     make
-    sudo make install
     sudo ldconfig 
     cd ..
 
