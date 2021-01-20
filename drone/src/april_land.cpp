@@ -272,9 +272,6 @@ int april_land::rate_calculator(float altitude){
     if(altitude > 10.0){
         return .5;
     }
-    else if(altitude <= 10.0 && altitude >= 2.0){
-        return round(altitude / 10.0);
-    }
     else{
         return .2;
     }
