@@ -268,12 +268,12 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
     return true;
 }
 
-int april_land::rate_calculator(float altitude){
+float april_land::rate_calculator(float altitude){
     if(altitude > 10.0){
         return .5;
     }
     else{
-        return .2;
+        return .3;
     }
 }
 
