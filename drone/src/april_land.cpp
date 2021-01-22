@@ -248,15 +248,18 @@ bool april_land::execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_
             offboard->set_velocity_body({(float)x*rate, (float)y*rate, (float)z*rate, (float)yaw*rate});
         }
         else if(altitude <= .4){
-            //breakout, main loop calls land
-            break;
+            cap.release();
+            apriltag_detector_destroy(td);
+            //stop killswitch
+            utilities::line_buffer(true);
+            return true;
         }
     }
     cap.release();
     apriltag_detector_destroy(td);
     //stop killswitch
     utilities::line_buffer(true);
-    return true;
+    return false;
 }
 
 float april_land::rate_calculator(float altitude){
