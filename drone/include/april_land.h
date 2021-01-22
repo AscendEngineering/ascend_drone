@@ -29,7 +29,7 @@ class april_land{
 
     public:
         april_land();
-        bool execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_sensors> drone_sensors);
+        bool execute(std::shared_ptr<Offboard> offboard,std::shared_ptr<px4_sensors> drone_sensors, bool simulation = false);
 
     private:
 
@@ -46,7 +46,7 @@ class april_land{
         apriltag_detector_t *td = nullptr;
 
         //functions
-        int rate_calculator(float altitude);
+        float rate_calculator(float altitude);
         int april_mover_y(int frame_y, double april_y, int distance);
         int april_mover_x(int frame_x, double april_x, int distance);
         int april_mover_yaw(double yaw_percentage, int x, int y);

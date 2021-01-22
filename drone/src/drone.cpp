@@ -269,14 +269,14 @@ void drone::manual(){
                 //april
                 LOG_S(INFO) << "Activating April Assist";
                 april_land lander;
-                bool above_april = lander.execute(offboard,drone_sensors);
+                bool above_april = lander.execute(offboard,drone_sensors,simulation);
                 offboard->set_velocity_body({0, 0, 0, 0}); /* Needed */
                 offboard_result = offboard->start();
                 if(offboard_result != Offboard::Result::Success){
                     std::cerr << "Error gaining offboard control" << std::endl;
                     return;
                 }
-                land();
+                //land();
             }
             else if(user_resp=="8"){
                 std::string send_msg = msg_generator::generate_land_request(drone_name);
@@ -335,7 +335,8 @@ void drone::control_from_remote(bool april_assist){
                 if(april_assist){
                     LOG_S(INFO) << "Activating April Assist";
                     april_land lander;
-                    bool above_april = lander.execute(offboard,drone_sensors);
+                    std::cout << "sim: " << simulation << std::endl;
+                    bool above_april = lander.execute(offboard,drone_sensors,simulation);
                     if(above_april){
                         LOG_S(INFO) << "Killing Motors";
                         land();
